@@ -10,9 +10,17 @@ interface OtpResponse {
 
 interface VerifyOtpResponse {
     // Define expected response structure for verifying OTP
+    success: boolean;
     message: string;
-    token?: string; // Assuming a token is returned on successful verification
-    // Add other fields as per your backend response
+    data: {
+        id: number;
+        mobile_number: string;
+        name: string;
+        email: string;
+        role: string;
+        isNewUser: boolean;
+        token: string;
+    }
 }
 
 export const requestOtp = async (mobile_number: string): Promise<OtpResponse> => {

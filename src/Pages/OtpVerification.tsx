@@ -71,8 +71,8 @@ const OtpVerification = () => {
             console.log("Verifying OTP:", enteredOtp, "for mobile:", mobileNumber);
             const response = await verifyOtp(mobileNumber, enteredOtp);
             console.log("OTP verified successfully:", response);
-            if (response.token) {
-                login(response.token);
+            if (response.data.token) {
+                login(response.data.token);
                 navigate("/home");
             } else {
                 setError("No token received from server");

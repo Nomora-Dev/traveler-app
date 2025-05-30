@@ -86,8 +86,8 @@ const Login = () => {
             console.log("Verifying OTP:", enteredOtp, "for mobile:", fullMobileNumber)
             const response = await verifyOtp(fullMobileNumber, enteredOtp)
             console.log("OTP verified successfully:", response)
-            if (response.token) {
-                login(response.token)
+            if (response.data.token) {
+                login(response.data.token)
                 navigate("/home")
             } else {
                 setError("No token received from server")
@@ -108,35 +108,39 @@ const Login = () => {
 
             <h2 className='text-heading-black text-2xl font-semibold mt-12 mb-4'>Welcome to Nomora</h2>
             <p className='text-text-gray text-sm'>Seamless travel experience with Nomora</p>
-            <img src="splash.png" alt="splash" className='w-full h-auto my-10' />
+            {!showOtp && (
+                <img src="splash.png" alt="splash" className='w-full h-auto my-10' />
+            )}
             <div className='flex flex-col w-full items-center justify-center gap-8'>
-                <div className="w-full text-left">
-                    <h1 className="text-heading-black text-3xl font-medium">Login</h1>
-                </div>
+                {!showOtp && (
+                    <div className="w-full text-left">
+                        <h1 className="text-heading-black text-3xl font-medium">Login</h1>
+                    </div>
+                )}
 
                 {!showOtp ? (
                     <>
                         <div className='w-full flex items-center justify-start gap-1 border-b-2 border-primary-stroke p-2'>
                             <Phone className='w-7 h-7 text-icon-color mr-2' />
-                            <select 
-                                value={prefix} 
-                                onChange={(e) => setPrefix(e.target.value)} 
+                            <select
+                                value={prefix}
+                                onChange={(e) => setPrefix(e.target.value)}
                                 className='outline-none bg-transparent text-text-gray mr-1 p-2'
                             >
                                 <option value="+91">+91</option>
                             </select>
-                            <input 
+                            <input
                                 type="tel"
-                                placeholder='Mobile Number' 
+                                placeholder='Mobile Number'
                                 className='outline-none bg-transparent text-text-gray placeholder:text-text-gray w-full'
-                                value={mobileNumber} 
+                                value={mobileNumber}
                                 onChange={(e) => setMobileNumber(e.target.value)}
                                 maxLength={10}
                             />
                         </div>
                         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-                        <button 
-                            onClick={handleRequestOtp} 
+                        <button
+                            onClick={handleRequestOtp}
                             className='w-full py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-hero-peach to-hero-green text-white rounded-md my-4 disabled:opacity-70'
                             disabled={loading}
                         >
@@ -164,8 +168,8 @@ const Login = () => {
                             ))}
                         </div>
                         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-                        <button 
-                            onClick={handleVerifyOtp} 
+                        <button
+                            onClick={handleVerifyOtp}
                             className='w-full py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-hero-peach to-hero-green text-white rounded-md my-4 disabled:opacity-70'
                             disabled={loading}
                         >
