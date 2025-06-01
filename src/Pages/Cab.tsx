@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import CityTransfer from '../Components/CityTransfer';
 import TerminalTransfer from '../Components/TerminalTransfer';
 import Navbar from '../Components/Navbar';
+import MultidayRental from '../Components/MultidayRental';
 
 const tabList = [
     { label: 'City', value: 'city' },
-    { label: 'Outstation', value: 'outstation' },
+    { label: 'Multiday', value: 'multiday' },
     { label: 'Terminal', value: 'terminal' },
     { label: 'Rental', value: 'rental' },
 ];
 
-const OutstationTransfer = () => <div className="py-20 text-center text-text-gray">Outstation Transfer UI coming soon...</div>;
+// const OutstationTransfer = () => <div className="py-20 text-center text-text-gray">Outstation Transfer UI coming soon...</div>;
 const RentalTransfer = () => <div className="py-20 text-center text-text-gray">Rental Transfer UI coming soon...</div>;
 
 const Cab = () => {
@@ -19,7 +20,7 @@ const Cab = () => {
     let Content;
     if (tab === 'city') Content = <CityTransfer />;
     else if (tab === 'terminal') Content = <TerminalTransfer />;
-    else if (tab === 'outstation') Content = <OutstationTransfer />;
+    else if (tab === 'multiday') Content = <MultidayRental />;
     else if (tab === 'rental') Content = <RentalTransfer />;
 
     return (
