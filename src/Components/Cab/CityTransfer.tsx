@@ -25,7 +25,6 @@ const CityTransfer = () => {
 
   return (
     <div className="bg-white px-6 pt-6 pb-8 w-full max-w-md mx-auto font-sans">
-      <h2 className="text-2xl font-semibold text-heading-black mb-7 text-center font-sans">Book a City Transfer</h2>
       {/* Pickup Time */}
       <div className="mb-7">
         <div className="flex items-center gap-8 mb-3">

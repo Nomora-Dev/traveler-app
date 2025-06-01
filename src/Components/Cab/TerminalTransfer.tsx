@@ -27,7 +27,6 @@ const TerminalTransfer = () => {
 
     return (
         <div className="bg-white px-6 pt-6 pb-8 w-full max-w-md mx-auto font-sans">
-            <h2 className="text-2xl font-semibold text-heading-black mb-7 text-center font-sans">Book a Cab</h2>
             {/* Segmented Control */}
             <div className="flex bg-gray-100 rounded-xl p-1 mb-8 w-full max-w-xs mx-auto gap-2">
                 <button

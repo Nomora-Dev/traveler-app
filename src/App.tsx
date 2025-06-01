@@ -1,7 +1,5 @@
-import React from 'react'
 import Login from './Pages/Login'
 import Services from './Pages/Home'
-import TerminalTransfer from './Components/TerminalTransfer'
 import Cab from './Pages/Cab'
 import { Route, Routes, BrowserRouter as Router, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
