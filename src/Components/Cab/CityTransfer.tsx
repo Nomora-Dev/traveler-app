@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { MapPin, Users, Calendar, Clock } from 'lucide-react';
 import type { LocationSuggestion, TransferBooking } from '../../types/types';
 import { getLocationSuggestions, getTransferBooking } from '../../services/cab';
@@ -6,11 +6,6 @@ import CabSearchResults from './CabSearchResults';
 
 const quickPickup = ['Hotel Sunrise, Manali', 'Mall Road', 'Old Bus Stand'];
 const quickDrop = ['Shimla', 'Kullu', 'Dharamshala'];
-const popularDestinations = [
-  { name: 'Shimla', link: '#' },
-  { name: 'Kullu', link: '#' },
-  { name: 'Dharamshala', link: '#' },
-];
 
 const CityTransfer = () => {
   const [formData, setFormData] = useState<TransferBooking>({

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { LocationSuggestion, TransferBooking } from '../types/types';
+import type { LocationSuggestion, TransferBooking, HourlySearchResponse } from '../types/types';
 
 const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL || 'http://localhost:5000/api/v1';
 
@@ -44,5 +44,31 @@ export const getTransferBooking = async (bookingData: TransferBooking) => {
     } catch (error) {
         console.error('Error fetching transfer booking:', error);
         throw error;
+    }
+}
+
+export const getHourlyTransferBooking = async (params: any): Promise<HourlySearchResponse> => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/rentals/search`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            params
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching hourly transfer booking:', error);
+        return {
+            success: false,
+            data: {
+                suppliers: [],
+                route_info: {
+                    pickup_location: '',
+                    drop_location: '',
+                    distance_km: 0,
+                    duration: ''
+                }
+            }
+        };
     }
 }
