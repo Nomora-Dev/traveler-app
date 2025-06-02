@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { MapPin, Users, Calendar, Clock } from 'lucide-react';
 import type { LocationSuggestion, TransferBooking } from '../../types/types';
 import { getLocationSuggestions, getTransferBooking } from '../../services/cab';
+import CabSearchResults from './CabSearchResults';
 
 const quickPickup = ['Hotel Sunrise, Manali', 'Mall Road', 'Old Bus Stand'];
 const quickDrop = ['Shimla', 'Kullu', 'Dharamshala'];
@@ -22,6 +23,10 @@ const CityTransfer = () => {
     pickup_date: null,
     pickup_time: null,
   });
+
+  const [searchResults, setSearchResults] = useState<any>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   console.log(formData);
 
@@ -137,14 +142,28 @@ const CityTransfer = () => {
   };
 
   const handleSearch = async () => {
-    console.log(formData);
+    if (!formData.pickup_location_query || !formData.drop_location_query) {
+      setSearchError('Please select both pickup and drop locations');
+      return;
+    }
+
+    setIsSearching(true);
+    setSearchError(null);
+
     try {
       const response = await getTransferBooking(formData);
-      console.log(response);
+      setSearchResults(response);
     } catch (error) {
       console.error('Error fetching transfer booking:', error);
+      setSearchError('Failed to fetch cab options. Please try again.');
+    } finally {
+      setIsSearching(false);
     }
   };
+
+  if (searchResults) {
+    return <CabSearchResults searchResults={searchResults} />;
+  }
 
   return (
     <div className="bg-white px-6 pt-6 pb-8 w-full max-w-md mx-auto font-sans">
@@ -281,8 +300,19 @@ const CityTransfer = () => {
           >+</button>
         </div>
       </div>
+      {searchError && (
+        <div className="text-red-500 text-sm mb-4">{searchError}</div>
+      )}
       {/* Search Button */}
-      <button onClick={handleSearch} className="w-full py-4 bg-gradient-to-r from-hero-peach to-hero-green text-white rounded-lg font-semibold text-lg shadow-md hover:bg-hero-green transition font-sans">Search for Cab</button>
+      <button 
+        onClick={handleSearch} 
+        disabled={isSearching}
+        className={`w-full py-4 bg-gradient-to-r from-hero-peach to-hero-green text-white rounded-lg font-semibold text-lg shadow-md transition font-sans ${
+          isSearching ? 'opacity-50 cursor-not-allowed' : 'hover:bg-hero-green'
+        }`}
+      >
+        {isSearching ? 'Searching...' : 'Search for Cab'}
+      </button>
     </div>
   );
 };

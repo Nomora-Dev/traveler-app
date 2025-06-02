@@ -27,7 +27,7 @@ const Cab = () => {
     else if (tab === 'hourly') Content = <Hourly />;
 
     return (
-        <div className="min-h-screen bg-hero-tertiary pb-20 font-sans">
+        <div className="min-h-screen bg-white pb-20 font-sans">
             <div className="w-full max-w-md mx-auto px-0 pt-0">
                 {/* Card */}
                 <div className="bg-white rounded-2xl shadow-lg px-0 pt-0 pb-2 mt-0">
