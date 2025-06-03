@@ -18,6 +18,18 @@ export interface TransferBooking {
     pickup_time: string | null;
 }
 
+export interface TerminalTransferBooking {
+    terminal_type: string;
+    terminal_name: string;
+    district_location_query: string;
+    pax_count: number;
+    is_ac_preference: boolean;
+    pickup_time_type: 'now' | 'schedule';
+    pickup_date: string | null;
+    pickup_time: string | null;
+    mode?: 'pickup' | 'drop';
+}
+
 export interface HourlySupplierCategoryPricing {
     base_price: number | null;
     included_kms: number | null;

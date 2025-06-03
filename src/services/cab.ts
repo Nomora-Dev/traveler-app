@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { LocationSuggestion, TransferBooking, HourlySearchResponse } from '../types/types';
+import type { LocationSuggestion, TransferBooking, HourlySearchResponse, TerminalTransferBooking } from '../types/types';
 
 const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL || 'http://localhost:5000/api/v1';
 
@@ -47,6 +47,21 @@ export const getTransferBooking = async (bookingData: TransferBooking) => {
     }
 }
 
+export const getTerminalTransferBooking = async (bookingData: TerminalTransferBooking) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/transfers/search-terminal`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            params: bookingData
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching transfer booking:', error);
+        throw error;
+    }
+}
+
 export const getHourlyTransferBooking = async (params: any): Promise<HourlySearchResponse> => {
     try {
         const response = await axios.get(`${API_BASE_URL}/rentals/search`, {
@@ -72,3 +87,22 @@ export const getHourlyTransferBooking = async (params: any): Promise<HourlySearc
         };
     }
 }
+
+export const getTerminalSuggestions = async (query: string) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/transfers/terminal/search`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            params: { query }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching terminal suggestions:', error);
+        return {
+            success: false,
+            message: 'Failed to fetch terminal suggestions. Please try again.',
+            data: []
+        };
+    }
+};

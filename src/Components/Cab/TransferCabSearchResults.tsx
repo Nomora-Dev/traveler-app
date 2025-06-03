@@ -60,7 +60,7 @@ const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults }) =>
                         <MapPin className="w-4 h-4 text-indigo-500" />
                         <div>
                             <div className="text-xs text-gray-500">Pickup</div>
-                            <div className="text-sm font-medium text-gray-900">{pickup_location.formatted_address}</div>
+                            <div className="text-sm font-medium text-gray-900">{pickup_location.formatted_address || 'Pickup location not found'}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
