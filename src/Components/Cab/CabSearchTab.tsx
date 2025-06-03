@@ -11,6 +11,7 @@ interface CabSearchTabProps {
     error?: string | null;
     quickOptions?: string[];
     className?: string;
+    disabled?: boolean;
 }
 
 const CabSearchTab: React.FC<CabSearchTabProps> = ({
@@ -22,6 +23,7 @@ const CabSearchTab: React.FC<CabSearchTabProps> = ({
     error,
     quickOptions = [],
     className = '',
+    disabled = false,
 }) => {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -45,11 +47,12 @@ const CabSearchTab: React.FC<CabSearchTabProps> = ({
                 ref={inputRef}
                 type="text"
                 placeholder={placeholder}
-                className={`w-full border ${error ? 'border-red-500' : 'border-primary-stroke'} rounded-lg py-3 pl-10 pr-2 text-heading-black focus:outline-none focus:ring-2 focus:ring-hero-peach bg-white font-sans placeholder:text-text-gray`}
+                className={`w-full border ${error ? 'border-red-500' : 'border-primary-stroke'} rounded-lg py-3 pl-10 pr-2 text-heading-black focus:outline-none focus:ring-2 focus:ring-hero-peach bg-white font-sans placeholder:text-text-gray ${disabled ? 'opacity-50 bg-gray-100' : ''}`}
                 value={value}
                 onChange={e => onChange(e.target.value)}
-                onFocus={() => setShowSuggestions(true)}
+                onFocus={() => !disabled && setShowSuggestions(true)}
                 autoComplete="off"
+                disabled={disabled}
             />
             <MapPin className="absolute left-3 top-3 w-5 h-5 text-icon-color" />
             {showSuggestions && suggestions.length > 0 && (
@@ -69,7 +72,7 @@ const CabSearchTab: React.FC<CabSearchTabProps> = ({
                 </div>
             )}
             {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
-            {quickOptions.length > 0 && (
+            {quickOptions.length > 0 && !disabled && (
                 <div className="flex gap-2 flex-wrap mt-2">
                     {quickOptions.map(opt => (
                         <button

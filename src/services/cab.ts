@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { LocationSuggestion, TransferBooking, HourlySearchResponse, TerminalTransferBooking } from '../types/types';
+import type { LocationSuggestion, TransferBooking, HourlySearchResponse, TerminalTransferBooking, MultidaySearchResponse } from '../types/types';
 
 const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL || 'http://localhost:5000/api/v1';
 
@@ -105,4 +105,9 @@ export const getTerminalSuggestions = async (query: string) => {
             data: []
         };
     }
+};
+
+export const getMultidayTransferBooking = async (params: any): Promise<MultidaySearchResponse> => {
+    const response = await axios.get(`${API_BASE_URL}/rentals/search`, { params });
+    return response.data;
 };

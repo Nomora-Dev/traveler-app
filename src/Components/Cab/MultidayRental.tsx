@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
-import { Calendar, Clock, MapPin, Users, Plus, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Clock, Users, Plus, X } from 'lucide-react';
+import { getMultidayTransferBooking, getLocationSuggestions } from '../../services/cab';
+import type { MultidaySearchResponse, LocationSuggestion } from '../../types/types';
+import MultidaySearchResults from './MultidaySearchResults';
+import CabSearchTab from './CabSearchTab';
 
 const quickStops = ['Mysore Palace', 'Coorg Resort'];
 
 interface MultidayFormData {
+    service_type: string;
     tripType: string;
     startDate: string;
     startTime: string;
-    pickupLocation: string;
+    pickup_location: string;
     stops: string[];
-    dropLocation: string;
-    guests: number;
+    drop_location: string;
+    pax_count: number;
     endDate: string;
     endTime: string;
     newStop: string;
@@ -18,17 +23,58 @@ interface MultidayFormData {
 
 const MultidayRental = () => {
     const [formData, setFormData] = useState<MultidayFormData>({
+        service_type: 'multiday',
         tripType: 'oneway',
         startDate: '',
         startTime: '',
-        pickupLocation: '',
+        pickup_location: '',
         stops: [],
-        dropLocation: '',
-        guests: 2,
+        drop_location: '',
+        pax_count: 2,
         endDate: '',
         endTime: '',
         newStop: '',
     });
+
+    const [searchResults, setSearchResults] = useState<MultidaySearchResponse['data'] | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [pickupSuggestions, setPickupSuggestions] = useState<LocationSuggestion['data']>([]);
+    const [dropSuggestions, setDropSuggestions] = useState<LocationSuggestion['data']>([]);
+
+    // Fetch location suggestions when pickup location changes
+    useEffect(() => {
+        const fetchPickupSuggestions = async () => {
+            if (formData.pickup_location.length > 2) {
+                const response = await getLocationSuggestions(formData.pickup_location);
+                if (response.success) {
+                    setPickupSuggestions(response.data);
+                }
+            } else {
+                setPickupSuggestions([]);
+            }
+        };
+
+        const timeoutId = setTimeout(fetchPickupSuggestions, 300);
+        return () => clearTimeout(timeoutId);
+    }, [formData.pickup_location]);
+
+    // Fetch location suggestions when drop location changes
+    useEffect(() => {
+        const fetchDropSuggestions = async () => {
+            if (formData.drop_location.length > 2) {
+                const response = await getLocationSuggestions(formData.drop_location);
+                if (response.success) {
+                    setDropSuggestions(response.data);
+                }
+            } else {
+                setDropSuggestions([]);
+            }
+        };
+
+        const timeoutId = setTimeout(fetchDropSuggestions, 300);
+        return () => clearTimeout(timeoutId);
+    }, [formData.drop_location]);
 
     const handleChange = (field: keyof MultidayFormData, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -44,9 +90,66 @@ const MultidayRental = () => {
         setFormData(prev => ({ ...prev, stops: prev.stops.filter((_, i) => i !== idx) }));
     };
 
+    const handleSearch = async () => {
+        // Validate required fields
+        if (!formData.pickup_location || !formData.drop_location) {
+            setError('Please enter pickup and drop locations');
+            return;
+        }
+        if (!formData.startDate || !formData.startTime || !formData.endDate || !formData.endTime) {
+            setError('Please select start and end dates/times');
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const params = {
+                ...formData,
+                start_date: `${formData.startDate}T${formData.startTime}`,
+                end_date: `${formData.endDate}T${formData.endTime}`,
+                is_round_trip: formData.tripType === 'round'
+            };
+            const response = await getMultidayTransferBooking(params);
+
+            if (response.success) {
+                setSearchResults(response.data);
+            } else {
+                setError('No cabs found.');
+            }
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to search for cabs');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handlePickupSuggestionClick = (suggestion: LocationSuggestion['data'][0]) => {
+        handleChange('pickup_location', suggestion.description);
+        setPickupSuggestions([]);
+    };
+
+    const handleDropSuggestionClick = (suggestion: LocationSuggestion['data'][0]) => {
+        handleChange('drop_location', suggestion.description);
+        setDropSuggestions([]);
+    };
+
+    if (searchResults) {
+        return (
+            <MultidaySearchResults
+                searchResults={searchResults}
+                tripDetails={{
+                    startDate: `${formData.startDate}T${formData.startTime}`,
+                    endDate: `${formData.endDate}T${formData.endTime}`,
+                    isRoundTrip: formData.tripType === 'round'
+                }}
+            />
+        );
+    }
+
     return (
         <div className="bg-white px-6 pt-6 pb-8 w-full max-w-md mx-auto font-sans">
-            {/* <h2 className="text-2xl font-semibold text-heading-black mb-7 text-center font-sans">Book Outstation Cab</h2> */}
             {/* Trip Type */}
             <div className="flex bg-gray-100 rounded-xl p-1 mb-6 w-full max-w-xs mx-auto gap-2">
                 <button
@@ -87,18 +190,15 @@ const MultidayRental = () => {
                 </div>
             </div>
             {/* Pickup Location */}
-            <div className="mb-6">
-                <div className="relative mb-3">
-                    <input
-                        type="text"
-                        placeholder="Pickup location (e.g. The Leela Palace, Bengaluru)"
-                        className="w-full border border-primary-stroke rounded-lg py-3 pl-10 pr-2 text-heading-black focus:outline-none focus:ring-2 focus:ring-hero-peach bg-white font-sans placeholder:text-text-gray"
-                        value={formData.pickupLocation}
-                        onChange={e => handleChange('pickupLocation', e.target.value)}
-                    />
-                    <MapPin className="absolute left-3 top-3 w-5 h-5 text-icon-color" />
-                </div>
-            </div>
+            <CabSearchTab
+                value={formData.pickup_location}
+                onChange={value => handleChange('pickup_location', value)}
+                suggestions={pickupSuggestions}
+                onSuggestionClick={handlePickupSuggestionClick}
+                placeholder="Pickup location (e.g. The Leela Palace, Bengaluru)"
+                quickOptions={quickStops}
+                error={error && !formData.pickup_location ? 'Pickup location is required' : null}
+            />
             {/* Stops */}
             <div className="mb-6">
                 <div className="flex flex-wrap gap-2 mb-2">
@@ -108,7 +208,6 @@ const MultidayRental = () => {
                             <button type="button" className="ml-1" onClick={() => handleRemoveStop(idx)}><X className="w-4 h-4 text-text-gray" /></button>
                         </span>
                     ))}
-                    {/* {quick4 */}
                 </div>
                 <div className="flex items-center gap-2">
                     <input
@@ -123,16 +222,16 @@ const MultidayRental = () => {
                 </div>
             </div>
             {/* Drop Location */}
-            <div className="mb-6 relative">
-                <input
-                    type="text"
-                    placeholder="Drop location"
-                    className={`w-full border border-primary-stroke rounded-lg py-3 pl-10 pr-2 text-heading-black focus:outline-none focus:ring-2 focus:ring-hero-peach bg-white font-sans placeholder:text-text-gray ${formData.tripType === 'oneway' ? '' : 'opacity-50 bg-gray-200'}`}
-                    value={formData.tripType === 'oneway' ? formData.dropLocation : formData.pickupLocation}
-                    onChange={e => handleChange('dropLocation', e.target.value)}
-                />
-                <MapPin className="absolute left-3 top-3 w-5 h-5 text-icon-color" style={{ top: '50%', transform: 'translateY(-50%)', left: '0.75rem', position: 'absolute' }} />
-            </div>
+            <CabSearchTab
+                value={formData.tripType === 'oneway' ? formData.drop_location : formData.pickup_location}
+                onChange={value => handleChange('drop_location', value)}
+                suggestions={dropSuggestions}
+                onSuggestionClick={handleDropSuggestionClick}
+                placeholder="Drop location"
+                disabled={formData.tripType === 'round'}
+                className={formData.tripType === 'round' ? 'opacity-50' : ''}
+                error={error && !formData.drop_location ? 'Drop location is required' : null}
+            />
             {/* Number of Guests */}
             <div className="mb-8">
                 <label className="block text-sm font-medium text-heading-black mb-2 font-sans">Number of Guests</label>
@@ -141,13 +240,13 @@ const MultidayRental = () => {
                     <button
                         type="button"
                         className="px-3 text-lg font-bold text-text-gray hover:text-hero-peach font-sans"
-                        onClick={() => handleChange('guests', Math.max(1, formData.guests - 1))}
+                        onClick={() => handleChange('pax_count', Math.max(1, formData.pax_count - 1))}
                     >-</button>
-                    <span className="text-base font-medium w-8 text-center font-sans">{formData.guests}</span>
+                    <span className="text-base font-medium w-8 text-center font-sans">{formData.pax_count}</span>
                     <button
                         type="button"
                         className="px-3 text-lg font-bold text-text-gray hover:text-hero-peach font-sans"
-                        onClick={() => handleChange('guests', formData.guests + 1)}
+                        onClick={() => handleChange('pax_count', formData.pax_count + 1)}
                     >+</button>
                 </div>
             </div>
@@ -176,7 +275,18 @@ const MultidayRental = () => {
                 </div>
             </div>
             {/* Search Button */}
-            <button className="w-full py-4 bg-gradient-to-r from-hero-peach to-hero-green text-white rounded-lg font-semibold text-lg shadow-md hover:bg-hero-green transition font-sans">Search for Cab</button>
+            <button 
+                className="w-full py-4 bg-gradient-to-r from-hero-peach to-hero-green text-white rounded-lg font-semibold text-lg shadow-md hover:bg-hero-green transition font-sans"
+                onClick={handleSearch}
+                disabled={isLoading}
+            >
+                {isLoading ? 'Searching...' : 'Search for Cab'}
+            </button>
+            {error && (
+                <div className="mt-4 text-red-500 text-sm text-center">
+                    {error}
+                </div>
+            )}
         </div>
     );
 };
