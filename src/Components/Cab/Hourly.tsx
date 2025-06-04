@@ -104,7 +104,8 @@ const Hourly: React.FC = () => {
                 navigate('/cab/search-results', {
                     state: {
                         searchResults: response.data,
-                        type: 'hourly'
+                        type: 'hourly',
+                        userInput: formData,
                     }
                 });
             } else {

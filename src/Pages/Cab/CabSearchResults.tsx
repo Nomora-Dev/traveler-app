@@ -8,7 +8,7 @@ import Navbar from '../../Components/Navbar';
 const CabSearchResults = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { searchResults, type } = location.state || {};
+    const { searchResults, type, userInput } = location.state || {};
 
     if (!searchResults || !type) {
         navigate('/cab');
@@ -18,7 +18,7 @@ const CabSearchResults = () => {
     const renderResults = () => {
         switch (type) {
             case 'hourly':
-                return <HourlySearchResults searchResults={searchResults} />;
+                return <HourlySearchResults searchResults={searchResults} userInput={userInput} />;
             case 'city':
             case 'terminal':
                 return <TransferCabSearchResults searchResults={searchResults} />;

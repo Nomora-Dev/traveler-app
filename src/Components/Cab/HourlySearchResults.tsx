@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { MapPin, Users, Clock, Star, Car } from 'lucide-react';
+import { MapPin, Users, Clock, Star, Car, X } from 'lucide-react';
 import type { HourlySearchResponse, HourlySupplier, HourlySupplierCategory } from '../../types/types';
 import { useNavigate } from 'react-router-dom';
+import FareBreakupModal from './FareBreakupModal';
 
 const FILTERS = [
     { label: 'All', value: 'all' },
@@ -12,13 +13,17 @@ const FILTERS = [
 
 interface HourlySearchResultsProps {
     searchResults: HourlySearchResponse['data'];
+    userInput: any;
 }
 
-const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults }) => {
+const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults, userInput }) => {
     const { suppliers, route_info } = searchResults;
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [selected, setSelected] = useState<{ supplierId: number; categoryId: string } | null>(null);
+    const [breakupIndex, setBreakupIndex] = useState<number | null>(null);
     const navigate = useNavigate();
+
+    console.log(userInput);
 
     // Flatten all categories for filtering
     const allOptions: { supplier: HourlySupplier; category: HourlySupplierCategory }[] = [];
@@ -42,25 +47,24 @@ const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults
         if (!supplier || !category) return null;
         const pricing = category.pricing;
         return {
-            pickup_location: route_info.pickup_location,
-            drop_location: route_info.drop_location,
-            pickup_date: route_info.pickup_date || '',
-            pickup_time: route_info.pickup_time || '',
-            pax_count: category.seating_capacity,
+            pickup_location: userInput?.pickup_location || route_info.pickup_location,
+            drop_location: userInput?.drop_location || route_info.drop_location,
+            pickup_date: userInput?.date || '',
+            pickup_time: userInput?.time || '',
+            pax_count: userInput?.pax_count || category.seating_capacity,
             estimated_distance: route_info.distance_km,
             estimated_duration: route_info.duration,
             car_category: category.name,
-            ac: category.is_ac ? 'AC' : 'Non AC',
+            // ac: category.is_ac ? 'AC' : 'Non AC',
             car_seater: category.seating_capacity + ' Seater',
             operator: supplier.name,
             base_fare: pricing.base_price,
-            taxes: pricing.taxes,
+            pricing: pricing,
             total_fare: pricing.final_price,
-            vehicle_name: category.vehicle_list?.join(', '),
+            // vehicle_name: category.vehicle_list?.join(', '),
             vehicle_type: category.name,
             payment_method: 'Pay in Cash',
-            pricing_criteria: category.pricing_criteria, // If available
-            terms: category.terms, // If available
+            userInput: userInput,
         };
     };
 
@@ -144,7 +148,15 @@ const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults
                                                 ₹{pricing.final_price !== null ? Math.round(pricing.final_price) : '--'}
                                             </span>
                                             <div className="text-xs text-gray-500">Incl. taxes</div>
-                                            {/* <button className="text-xs text-indigo-600 hover:underline mt-1">View breakup</button> */}
+                                            <button
+                                                className="text-xs text-indigo-600 hover:underline mt-1 transition-colors"
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    setBreakupIndex(idx);
+                                                }}
+                                            >
+                                                View breakup
+                                            </button>
                                         </div>
                                     </div>
                                     <div className="flex gap-2 mt-2 mb-1">
@@ -177,6 +189,7 @@ const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults
                                 state: {
                                     bookingDetails,
                                     type: 'hourly',
+                                    userInput: userInput,
                                 },
                             });
                         }
@@ -185,6 +198,23 @@ const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults
                     Review Booking
                 </button>
             </div>
+
+            {/* Fare Breakup Modal */}
+            {breakupIndex !== null && (
+                <FareBreakupModal
+                    carDetails={{
+                        name: filteredOptions[breakupIndex].category.name,
+                        category: filteredOptions[breakupIndex].category.name,
+                        description: 'Comfortable car for your ride.',
+                        seatingCapacity: filteredOptions[breakupIndex].category.seating_capacity,
+                    }}
+                    pricing={filteredOptions[breakupIndex].category.pricing}
+                    userInput={userInput}
+                    onClose={() => setBreakupIndex(null)}
+                    type="hourly"
+                    bookingDetails={getBookingDetails()}
+                />
+            )}
         </div>
     );
 };
