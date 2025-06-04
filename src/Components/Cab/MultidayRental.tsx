@@ -4,6 +4,7 @@ import { getMultidayTransferBooking, getLocationSuggestions } from '../../servic
 import type { MultidaySearchResponse, LocationSuggestion } from '../../types/types';
 import MultidaySearchResults from './MultidaySearchResults';
 import CabSearchTab from './CabSearchTab';
+import { useNavigate } from 'react-router-dom';
 
 const quickStops = ['Mysore Palace', 'Coorg Resort'];
 
@@ -41,6 +42,7 @@ const MultidayRental = () => {
     const [error, setError] = useState<string | null>(null);
     const [pickupSuggestions, setPickupSuggestions] = useState<LocationSuggestion['data']>([]);
     const [dropSuggestions, setDropSuggestions] = useState<LocationSuggestion['data']>([]);
+    const navigate = useNavigate();
 
     // Fetch location suggestions when pickup location changes
     useEffect(() => {
@@ -114,7 +116,17 @@ const MultidayRental = () => {
             const response = await getMultidayTransferBooking(params);
 
             if (response.success) {
-                setSearchResults(response.data);
+                navigate('/cab/search-results', {
+                    state: {
+                        searchResults: response.data,
+                        type: 'multiday',
+                        tripDetails: {
+                            startDate: formData.startDate,
+                            endDate: formData.endDate,
+                            isRoundTrip: formData.tripType === 'round'
+                        }
+                    }
+                });
             } else {
                 setError('No cabs found.');
             }

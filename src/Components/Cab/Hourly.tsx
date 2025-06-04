@@ -4,6 +4,7 @@ import CabSearchTab from './CabSearchTab';
 import { getLocationSuggestions, getHourlyTransferBooking } from '../../services/cab';
 import type { LocationSuggestion, HourlySearchResponse } from '../../types/types';
 import HourlySearchResults from './HourlySearchResults';
+import { useNavigate } from 'react-router-dom';
 
 const hourOptions = [4, 6, 8, 12];
 const guestOptions = [2, 4, 6];
@@ -43,6 +44,8 @@ const Hourly: React.FC = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [searchError, setSearchError] = useState<string | null>(null);
     const [searchResults, setSearchResults] = useState<HourlySearchResponse['data'] | null>(null);
+
+    const navigate = useNavigate();
 
     const handlePickupChange = async (value: string) => {
         setFormData(prev => ({ ...prev, pickup_location: value }));
@@ -98,7 +101,12 @@ const Hourly: React.FC = () => {
             };
             const response = await getHourlyTransferBooking(params);
             if (response.success) {
-                setSearchResults(response.data);
+                navigate('/cab/search-results', {
+                    state: {
+                        searchResults: response.data,
+                        type: 'hourly'
+                    }
+                });
             } else {
                 setSearchError('No cabs found.');
             }

@@ -3,6 +3,7 @@ import { MapPin, Users, Calendar, Clock } from 'lucide-react';
 import type { LocationSuggestion, TransferBooking } from '../../types/types';
 import { getLocationSuggestions, getTransferBooking } from '../../services/cab';
 import CabSearchResults from './TransferCabSearchResults';
+import { useNavigate } from 'react-router-dom';
 
 const quickPickup = ['Hotel Sunrise, Manali', 'Mall Road', 'Old Bus Stand'];
 const quickDrop = ['Shimla', 'Kullu', 'Dharamshala'];
@@ -35,6 +36,8 @@ const CityTransfer = () => {
 
   const pickupRef = useRef<HTMLDivElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -147,7 +150,12 @@ const CityTransfer = () => {
 
     try {
       const response = await getTransferBooking(formData);
-      setSearchResults(response);
+      navigate('/cab/search-results', { 
+        state: { 
+          searchResults: response,
+          type: 'city'
+        }
+      });
     } catch (error) {
       console.error('Error fetching transfer booking:', error);
       setSearchError('Failed to fetch cab options. Please try again.');
