@@ -81,15 +81,18 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
         const taxes = Math.round(pricing.final_price * 0.05); // Example: 5% tax
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-auto p-6 relative animate-fadeIn">
-                    <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onClick={onClose}>
+                <div className="bg-white rounded-t-xl mt-auto max-h-[90vh] overflow-y-auto shadow-xl w-full max-w-md mx-auto p-6 relative animate-fadeIn">
+                    <button className="fixed top-[12vh] right-4 text-gray-400 hover:text-gray-600" onClick={onClose}>
                         <X className="w-6 h-6" />
                     </button>
                     {/* Car Details */}
-                    <div className="mb-4">
+                    <div className="mb-4 rounded-lg bg-gray-100 p-4">
+                        <div className="text-lg font-semibold mb-2">
+                            Car Details
+                        </div>
                         <div className="flex items-center gap-2 mb-2">
                             <Car className="w-5 h-5 text-hero-peach" />
-                            <span className="font-semibold text-lg text-heading-black">{category.name} Category</span>
+                            <span className="font-semibold text-md text-heading-black">{category.name} Category</span>
                         </div>
                         <div className="text-sm text-text-gray mb-2">
                             Compact cars perfect for city/outstation travel with essential comfort
@@ -107,7 +110,7 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
                         </ul>
                     </div>
                     {/* Fare Breakup */}
-                    <div className="mb-4">
+                    <div className="mb-4 rounded-lg bg-gray-100 p-4">
                         <div className="font-semibold mb-2">Fare Breakup</div>
                         <div className="text-sm space-y-1">
                             <div className="flex justify-between">
@@ -122,12 +125,12 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
                                 <span>Night driving fee</span>
                                 <span>{formatPrice(pricing.night_driving_fee * numberOfNights)}</span>
                             </div>
-                            {distance.extra_kms > 0 && (
+                            {/* {distance.extra_kms > 0 && (
                                 <div className="flex justify-between">
                                     <span>Extra KMs ({distance.extra_kms} km)</span>
                                     <span>{formatPrice(distance.extra_kms * pricing.price_per_km)}</span>
                                 </div>
-                            )}
+                            )} */}
                             {distance.extra_hours > 0 && (
                                 <div className="flex justify-between">
                                     <span>Extra Hours ({formatDuration(distance.extra_hours)})</span>
@@ -151,7 +154,7 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
                         </div>
                     </div>
                     {/* Pricing Rules */}
-                    <div className="mb-4">
+                    <div className="mb-4 rounded-lg bg-gray-100 p-4">
                         <div className="font-semibold mb-2">Pricing Rules</div>
                         <ul className="text-xs text-text-gray list-disc pl-5 space-y-1">
                             {PRICING_RULES.map((rule, idx) => (
