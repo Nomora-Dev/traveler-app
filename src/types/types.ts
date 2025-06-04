@@ -89,6 +89,7 @@ export interface MultidaySupplierCategory {
     id: string;
     name: string;
     seating_capacity: number;
+    vehicle_list: string[];
     pricing: {
         base_price: number;
         included_kms: number;

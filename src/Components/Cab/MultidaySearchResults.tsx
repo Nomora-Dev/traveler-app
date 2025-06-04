@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Car, Star, Phone, Clock, MapPin, ChevronRight, X, Users, Calendar } from 'lucide-react';
+import { Car, Star, Clock, MapPin, ChevronRight, X, Users, Calendar } from 'lucide-react';
 import type { MultidaySearchResponse } from '../../types/types';
 
 const FILTERS = ['All', 'Sedan', 'SUV', 'Hatchback'];
@@ -75,7 +75,7 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
     };
 
     // Modal for fare breakup
-    const FareBreakupModal = ({ supplier, category, onClose }: any) => {
+    const FareBreakupModal = ({ category, onClose }: any) => {
         const pricing = category.pricing;
         const distance = category.distance_info;
         const taxes = Math.round(pricing.final_price * 0.05); // Example: 5% tax
@@ -275,7 +275,7 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
 
                                         {/* Vehicle types */}
                                         <div className="text-xs text-text-gray mb-1">
-                                            {category.vehicle_list || 'Hyundai i10, Maruti WagonR, or similar'}
+                                            {category.vehicle_list.join(', ') || 'Hyundai i10, Maruti WagonR,' + 'or similar'}
                                         </div>
 
                                         {/* Price per day and kms */}
