@@ -118,9 +118,9 @@ const Hourly: React.FC = () => {
         }
     };
 
-    if (searchResults) {
-        return <HourlySearchResults searchResults={searchResults} />;
-    }
+    // if (searchResults) {
+    //     return <HourlySearchResults searchResults={searchResults} />;
+    // }
 
     return (
         <div className="bg-white px-6 pt-6 pb-8 w-full max-w-md mx-auto font-sans">

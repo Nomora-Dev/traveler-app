@@ -1,7 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, Clock, Users, Car, Info, CheckCircle2 } from 'lucide-react';
 import Navbar from '../../Components/Navbar';
-import FareBreakupModal from '../../Components/Cab/FareBreakupModal';
 
 const staticTransferPricingCriteria = [
     'Tolls, parking, permits, and taxes are excluded; to be paid offline.',
@@ -10,7 +9,11 @@ const staticTransferPricingCriteria = [
     'In case of drop to terminal, 15 minutes of waiting at pickup; ₹50 per additional 15 minutes.',
     'Change in pickup/drop location (town/village/city) may incur additional charges.'
 ];
-const staticTransferTerms = [
+const cityTransferTerms = [
+    'Free cancellation within 5 minutes of booking confirmation.',
+    '₹100 cancellation fee applies after 5 minutes.',
+];
+const staticTerminalTransferTerms = [
     {
         title: 'Pickup from Terminal',
         points: [
@@ -60,7 +63,7 @@ const CabBookingReview = () => {
 
     console.log(bookingDetails);
 
-    const paxCount = userInput?.pax_count || bookingDetails.pax_count;
+    // const paxCount = userInput?.pax_count || bookingDetails.pax_count;
 
     const pricing = bookingDetails.pricing;
 
@@ -122,7 +125,7 @@ const CabBookingReview = () => {
                             <Users className="w-5 h-5 text-gray-500 mt-1" />
                             <div>
                                 <div className="text-sm text-gray-500">Passengers</div>
-                                <div className="font-medium">{bookingDetails.pax_count}</div>
+                                <div className="font-medium">{userInput?.pax_count}</div>
                             </div>
                         </div>
                     </div>
@@ -162,23 +165,23 @@ const CabBookingReview = () => {
                     <div className="space-y-2">
                         <div className="flex justify-between">
                             <span>Base fare</span>
-                            <span>{formatPrice(pricing.base_price)}</span>
+                            <span>{formatPrice(pricing?.base_price || bookingDetails.final_price)}</span>
                         </div>
-                        {pricing.driver_allowance && (
+                        {pricing?.driver_allowance && (
                             <div className="flex justify-between">
                                 <span>Driver allowance</span>
-                                <span>{formatPrice(pricing.driver_allowance)}</span>
+                                <span>{formatPrice(pricing?.driver_allowance)}</span>
                             </div>
                         )}
-                        {pricing.tax && (
+                        {pricing?.taxes && (
                             <div className="flex justify-between">
                                 <span>Taxes & fees</span>
-                                <span>{formatPrice(pricing.tax)}</span>
+                                <span>{formatPrice(pricing?.taxes)}</span>
                             </div>
                         )}
                         <div className="flex justify-between font-semibold border-t pt-2 mt-2">
                             <span>Total fare</span>
-                            <span>{formatPrice(pricing.final_price)}</span>
+                            <span>{formatPrice(pricing?.final_price || bookingDetails.final_price)}</span>
                         </div>
                     </div>
                 </div>
@@ -195,7 +198,9 @@ const CabBookingReview = () => {
                 <div className="bg-white rounded-xl p-4 mb-4">
                     <h2 className="text-lg font-semibold mb-4">Pricing Criteria</h2>
                     <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
-                        {pricingInfo.pricingCriteria.map((term: any, index: number) => (
+                        {type === 'city' ? staticTransferPricingCriteria.map((term: any, index: number) => (
+                            <li key={index}>{term}</li>
+                        )) : pricingInfo.pricingCriteria.map((term: any, index: number) => (
                             <li key={index}>{term}</li>
                         ))}
                     </ul>
@@ -204,7 +209,11 @@ const CabBookingReview = () => {
                 <div className="bg-white rounded-xl p-4 mb-4">
                     <h2 className="text-lg font-semibold mb-4">Terms & Conditions</h2>
                     <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
-                        {pricingInfo.termsAndConditions.map((term: any, index: number) => (
+                        {type === 'city' ? cityTransferTerms.map((term: any, index: number) => (
+                            <li key={index}>{term}</li>
+                        )) : type === 'terminal' ? staticTerminalTransferTerms.map((term: any, index: number) => (
+                            <li key={index}>{term.title}</li>
+                        )) : pricingInfo.termsAndConditions.map((term: any, index: number) => (
                             <li key={index}>{term}</li>
                         ))}
                     </ul>

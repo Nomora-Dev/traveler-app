@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { LocationSuggestion, TerminalTransferBooking } from '../../types/types';
 import { getLocationSuggestions, getTerminalTransferBooking, getTerminalSuggestions } from '../../services/cab';
 import CabSearchResults from './TransferCabSearchResults';
+import { useNavigate } from 'react-router-dom';
 
 // const terminalTypes = [
 //     { label: 'Airport', icon: <Plane className="w-5 h-5 mr-2 text-icon-color" /> },
@@ -35,6 +36,7 @@ const TerminalTransfer = () => {
     const locationRef = useRef<HTMLDivElement>(null);
     const terminalRef = useRef<HTMLDivElement>(null);
     const latestRequestId = useRef(0);
+    const navigate = useNavigate();
 
     // Reset form when mode changes
     useEffect(() => {
@@ -162,7 +164,14 @@ const TerminalTransfer = () => {
                 ...formData,
                 mode
             });
-            setSearchResults(response);
+            navigate('/cab/search-results', {
+                state: {
+                    searchResults: response,
+                    type: 'terminal',
+                    userInput: formData,
+                    mode: mode
+                }
+            });
         } catch (error) {
             console.error('Error fetching transfer booking:', error);
             setSearchError('Failed to fetch cab options. Please try again.');
@@ -171,9 +180,9 @@ const TerminalTransfer = () => {
         }
     };
 
-    if (searchResults) {
-        return <CabSearchResults searchResults={searchResults} />;
-    }
+    // if (searchResults) {
+    //     return <CabSearchResults searchResults={searchResults} />;
+    // }
 
     return (
         <div className="bg-white px-6 pt-6 pb-8 w-full max-w-md mx-auto font-sans">

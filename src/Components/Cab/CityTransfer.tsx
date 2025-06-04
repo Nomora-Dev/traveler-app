@@ -153,7 +153,8 @@ const CityTransfer = () => {
       navigate('/cab/search-results', { 
         state: { 
           searchResults: response,
-          type: 'city'
+          type: 'city',
+          userInput: formData
         }
       });
     } catch (error) {
@@ -164,9 +165,9 @@ const CityTransfer = () => {
     }
   };
 
-  if (searchResults) {
-    return <CabSearchResults searchResults={searchResults} />;
-  }
+  // if (searchResults) {
+  //   return <CabSearchResults searchResults={searchResults} />;
+  // }
 
   return (
     <div className="bg-white px-6 pt-6 pb-8 w-full max-w-md mx-auto font-sans">

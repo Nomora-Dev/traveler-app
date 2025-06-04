@@ -21,9 +21,9 @@ const CabSearchResults = () => {
                 return <HourlySearchResults searchResults={searchResults} userInput={userInput} />;
             case 'city':
             case 'terminal':
-                return <TransferCabSearchResults searchResults={searchResults} />;
+                return <TransferCabSearchResults searchResults={searchResults} userInput={userInput} />;
             case 'multiday':
-                return <MultidaySearchResults searchResults={searchResults} tripDetails={location.state.tripDetails} />;
+                return <MultidaySearchResults searchResults={searchResults} tripDetails={location.state.tripDetails} userInput={userInput} />;
             default:
                 return null;
         }

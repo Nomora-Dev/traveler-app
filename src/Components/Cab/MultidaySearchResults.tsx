@@ -21,6 +21,7 @@ interface MultidaySearchResultsProps {
         endDate: string;
         isRoundTrip: boolean;
     };
+    userInput: any;
 }
 
 const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchResults, tripDetails }) => {

@@ -120,6 +120,7 @@ const MultidayRental = () => {
                     state: {
                         searchResults: response.data,
                         type: 'multiday',
+                        userInput: formData,
                         tripDetails: {
                             startDate: formData.startDate,
                             endDate: formData.endDate,
@@ -147,18 +148,18 @@ const MultidayRental = () => {
         setDropSuggestions([]);
     };
 
-    if (searchResults) {
-        return (
-            <MultidaySearchResults
-                searchResults={searchResults}
-                tripDetails={{
-                    startDate: `${formData.startDate}T${formData.startTime}`,
-                    endDate: `${formData.endDate}T${formData.endTime}`,
-                    isRoundTrip: formData.tripType === 'round'
-                }}
-            />
-        );
-    }
+    // if (searchResults) {
+    //     return (
+    //         <MultidaySearchResults
+    //             searchResults={searchResults}
+    //             tripDetails={{
+    //                 startDate: `${formData.startDate}T${formData.startTime}`,
+    //                 endDate: `${formData.endDate}T${formData.endTime}`,
+    //                 isRoundTrip: formData.tripType === 'round'
+    //             }}
+    //         />
+    //     );
+    // }
 
     return (
         <div className="bg-white px-6 pt-6 pb-8 w-full max-w-md mx-auto font-sans">

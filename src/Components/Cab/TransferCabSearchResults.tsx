@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface CabSearchResultsProps {
     searchResults: any; // Replace with proper type when available
+    userInput: any;
 }
 
 const FILTERS = [
@@ -136,7 +137,7 @@ const PriceBreakupModal = ({ option, onClose }: { option: any, onClose: () => vo
     );
 };
 
-const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults }) => {
+const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults, userInput }) => {
     if (!searchResults) return null;
 
     const navigate = useNavigate();
@@ -169,9 +170,7 @@ const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults }) =>
             ac: option.is_ac === 'true' ? 'AC' : 'Non AC',
             car_seater: option.seating_capacity + ' Seater',
             operator: option.supplier_name,
-            base_fare: option.base_fare,
-            taxes: option.taxes,
-            total_fare: option.calculated_final_price,
+            final_price: option.calculated_final_price,
             vehicle_name: option.car_model_names,
             vehicle_type: option.car_category_name,
             payment_method: 'Pay in Cash',
@@ -303,6 +302,7 @@ const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults }) =>
                                 state: {
                                     bookingDetails,
                                     type: 'city',
+                                    userInput: userInput,
                                 },
                             });
                         }
