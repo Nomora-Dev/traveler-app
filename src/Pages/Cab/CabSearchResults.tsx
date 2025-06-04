@@ -7,7 +7,7 @@ import MultidaySearchResults from '../../Components/Cab/MultidaySearchResults';
 const CabSearchResults = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { searchResults, type, mode } = location.state || {};
+    const { searchResults, type } = location.state || {};
 
     if (!searchResults || !type) {
         navigate('/cab');
@@ -19,9 +19,8 @@ const CabSearchResults = () => {
             case 'hourly':
                 return <HourlySearchResults searchResults={searchResults} />;
             case 'city':
-                return <TransferCabSearchResults searchResults={searchResults} />;
             case 'terminal':
-                return <TransferCabSearchResults searchResults={searchResults} mode={mode} />;
+                return <TransferCabSearchResults searchResults={searchResults} />;
             case 'multiday':
                 return <MultidaySearchResults searchResults={searchResults} tripDetails={location.state.tripDetails} />;
             default:
