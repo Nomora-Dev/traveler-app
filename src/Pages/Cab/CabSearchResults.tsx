@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import HourlySearchResults from '../../Components/Cab/HourlySearchResults';
 import TransferCabSearchResults from '../../Components/Cab/TransferCabSearchResults';
 import MultidaySearchResults from '../../Components/Cab/MultidaySearchResults';
+import Navbar from '../../Components/Navbar';
 
 const CabSearchResults = () => {
     const location = useLocation();
@@ -42,6 +43,7 @@ const CabSearchResults = () => {
                 </div>
             </div>
             {renderResults()}
+            <Navbar />
         </div>
     );
 };

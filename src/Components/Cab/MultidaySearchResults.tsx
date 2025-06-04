@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Car, Star, Clock, MapPin, ChevronRight, X, Users, Calendar } from 'lucide-react';
 import type { MultidaySearchResponse } from '../../types/types';
+import { useNavigate } from 'react-router-dom';
 
 const FILTERS = ['All', 'Sedan', 'SUV', 'Hatchback'];
 
@@ -32,6 +33,7 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
         supplier: any;
         category: any;
     } | null>(null);
+    const navigate = useNavigate();
 
     // Calculate trip duration
     const startDate = new Date(tripDetails.startDate);
@@ -168,6 +170,46 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
                 </div>
             </div>
         );
+    };
+
+    // Prepare booking details for review screen
+    const getBookingDetails = () => {
+        if (!selectedOption) return null;
+        const { supplier, category } = filteredCategories.find(
+            ({ supplier, categoryId }) => supplier.id === selectedOption.supplierId && categoryId === selectedOption.categoryId
+        ) || {};
+        if (!supplier || !category) return null;
+        const pricing = category.pricing;
+        const taxes = Math.round(pricing.final_price * 0.05); // Example: 5% tax
+        return {
+            pickup_location: searchResults.route_info.pickup_location,
+            drop_location: searchResults.route_info.drop_location,
+            pickup_date: tripDetails.startDate,
+            pickup_time: '',
+            pax_count: category.seating_capacity,
+            estimated_distance: searchResults.route_info.distance_km,
+            estimated_duration: searchResults.route_info.duration,
+            car_category: category.name,
+            ac: 'AC',
+            car_seater: category.seating_capacity + ' Seater',
+            operator: supplier.name,
+            base_fare: pricing.base_price * numberOfDays,
+            taxes: taxes,
+            total_fare: pricing.final_price + taxes,
+            vehicle_name: category.vehicle_list?.join(', '),
+            vehicle_type: category.name,
+            payment_method: 'Pay in Cash',
+            pricing_criteria: PRICING_RULES,
+            terms: [
+                {
+                    title: 'Multi-day Rental',
+                    points: [
+                        'Free cancellation up to 24 hours before pickup.',
+                        'No refund for cancellations within 24 hours of pickup.'
+                    ]
+                }
+            ],
+        };
     };
 
     return (
@@ -314,7 +356,15 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
                 <button
                     className="w-full py-4 bg-gradient-to-r from-hero-peach to-hero-green text-white rounded-lg font-semibold text-lg shadow-md hover:bg-hero-green transition mt-6 flex items-center justify-center gap-2"
                     onClick={() => {
-                        // Handle booking review
+                        const bookingDetails = getBookingDetails();
+                        if (bookingDetails) {
+                            navigate('/cab/review', {
+                                state: {
+                                    bookingDetails,
+                                    type: 'multiday',
+                                },
+                            });
+                        }
                     }}
                 >
                     Review Booking

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Users, Clock, Star, Car } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface CabSearchResultsProps {
     searchResults: any; // Replace with proper type when available
@@ -138,6 +139,7 @@ const PriceBreakupModal = ({ option, onClose }: { option: any, onClose: () => vo
 const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults }) => {
     if (!searchResults) return null;
 
+    const navigate = useNavigate();
     const { pickup_location, drop_location, actual_travel_info, available_options } = searchResults;
 
     const [selectedFilter, setSelectedFilter] = useState('all');
@@ -150,6 +152,33 @@ const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults }) =>
         if (selectedFilter === 'AC') return option.is_ac === 'true';
         return option.car_category_name === selectedFilter;
     });
+
+    // Prepare booking details for review screen
+    const getBookingDetails = () => {
+        if (selectedIndex === null) return null;
+        const option = filteredOptions[selectedIndex];
+        return {
+            pickup_location: pickup_location.formatted_address,
+            drop_location: drop_location.formatted_address,
+            pickup_date: actual_travel_info.pickup_date, // You may need to adjust this field
+            pickup_time: actual_travel_info.pickup_time, // You may need to adjust this field
+            pax_count: option.seating_capacity,
+            estimated_distance: actual_travel_info.distance_km,
+            estimated_duration: actual_travel_info.duration,
+            car_category: option.car_category_name,
+            ac: option.is_ac === 'true' ? 'AC' : 'Non AC',
+            car_seater: option.seating_capacity + ' Seater',
+            operator: option.supplier_name,
+            base_fare: option.base_fare,
+            taxes: option.taxes,
+            total_fare: option.calculated_final_price,
+            vehicle_name: option.car_model_names,
+            vehicle_type: option.car_category_name,
+            payment_method: 'Pay in Cash',
+            pricing_criteria: option.pricing_criteria, // If available
+            terms: option.terms, // If available
+        };
+    };
 
     return (
         <div className="bg-white px-6 flex flex-col mb-12">
@@ -267,6 +296,17 @@ const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults }) =>
                 <button
                     className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg px-8 py-3 text-lg shadow-md transition"
                     disabled={selectedIndex === null}
+                    onClick={() => {
+                        const bookingDetails = getBookingDetails();
+                        if (bookingDetails) {
+                            navigate('/cab/review', {
+                                state: {
+                                    bookingDetails,
+                                    type: 'city',
+                                },
+                            });
+                        }
+                    }}
                 >
                     Review Booking
                 </button>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Users, Clock, Star, Car } from 'lucide-react';
 import type { HourlySearchResponse, HourlySupplier, HourlySupplierCategory } from '../../types/types';
+import { useNavigate } from 'react-router-dom';
 
 const FILTERS = [
     { label: 'All', value: 'all' },
@@ -17,6 +18,7 @@ const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults
     const { suppliers, route_info } = searchResults;
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [selected, setSelected] = useState<{ supplierId: number; categoryId: string } | null>(null);
+    const navigate = useNavigate();
 
     // Flatten all categories for filtering
     const allOptions: { supplier: HourlySupplier; category: HourlySupplierCategory }[] = [];
@@ -30,6 +32,37 @@ const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults
         if (selectedFilter === 'all') return true;
         return category.name === selectedFilter;
     });
+
+    // Prepare booking details for review screen
+    const getBookingDetails = () => {
+        if (!selected) return null;
+        const { supplier, category } = filteredOptions.find(
+            ({ supplier, category }) => supplier.id === selected.supplierId && String(category.id) === selected.categoryId
+        ) || {};
+        if (!supplier || !category) return null;
+        const pricing = category.pricing;
+        return {
+            pickup_location: route_info.pickup_location,
+            drop_location: route_info.drop_location,
+            pickup_date: route_info.pickup_date || '',
+            pickup_time: route_info.pickup_time || '',
+            pax_count: category.seating_capacity,
+            estimated_distance: route_info.distance_km,
+            estimated_duration: route_info.duration,
+            car_category: category.name,
+            ac: category.is_ac ? 'AC' : 'Non AC',
+            car_seater: category.seating_capacity + ' Seater',
+            operator: supplier.name,
+            base_fare: pricing.base_price,
+            taxes: pricing.taxes,
+            total_fare: pricing.final_price,
+            vehicle_name: category.vehicle_list?.join(', '),
+            vehicle_type: category.name,
+            payment_method: 'Pay in Cash',
+            pricing_criteria: category.pricing_criteria, // If available
+            terms: category.terms, // If available
+        };
+    };
 
     return (
         <div className="bg-white px-6 flex flex-col mb-12">
@@ -137,6 +170,17 @@ const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults
                 <button
                     className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg px-8 py-3 text-lg shadow-md transition"
                     disabled={!selected}
+                    onClick={() => {
+                        const bookingDetails = getBookingDetails();
+                        if (bookingDetails) {
+                            navigate('/cab/review', {
+                                state: {
+                                    bookingDetails,
+                                    type: 'hourly',
+                                },
+                            });
+                        }
+                    }}
                 >
                     Review Booking
                 </button>
