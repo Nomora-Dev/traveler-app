@@ -6,6 +6,9 @@ import TransferBookingReview from './Pages/Cab/TransferBookingReview'
 import HourlyRentalReview from './Pages/Cab/HourlyRentalReview'
 import MultidayRentalReview from './Pages/Cab/MultidayRentalReview'
 import CabBookingConfirmation from './Pages/Cab/CabBookingConfirmation'
+import CityBookingConfirmation from './Pages/Cab/CityBookingConfirmation'
+import HourlyBookingConfirmation from './Pages/Cab/HourlyBookingConfirmation'
+import MultidayBookingConfirmation from './Pages/Cab/MultidayBookingConfirmation'
 import { Route, Routes, BrowserRouter as Router, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './Components/ProtectedRoute'
@@ -14,7 +17,7 @@ import Navbar from './Components/Navbar'
 const ReviewBooking = () => {
   const location = useLocation();
   const { bookingDetails, type, userInput } = location.state || {};
-  
+
   switch (type) {
     case 'city':
     case 'terminal':
@@ -28,72 +31,87 @@ const ReviewBooking = () => {
   }
 };
 
+const ConfirmationBooking = () => {
+  const location = useLocation();
+  const { type } = location.state || {};
+  switch (type) {
+    case 'city':
+      return <CityBookingConfirmation />;
+    case 'hourly':
+      return <HourlyBookingConfirmation />;
+    case 'multiday':
+      return <MultidayBookingConfirmation />;
+    default:
+      return <CabBookingConfirmation />;
+  }
+};
+
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth()
 
   return (
     <Routes>
-      <Route 
-        path="/" 
+      <Route
+        path="/"
         element={
           isAuthenticated ? (
             <Navigate to="/home" replace />
           ) : (
             <Navigate to="/login" replace />
           )
-        } 
+        }
       />
-      <Route 
-        path="/login" 
+      <Route
+        path="/login"
         element={
           isAuthenticated ? (
             <Navigate to="/home" replace />
           ) : (
             <Login />
           )
-        } 
+        }
       />
-      <Route 
-        path="/home" 
+      <Route
+        path="/home"
         element={
           <ProtectedRoute>
             <Services />
             <Navbar />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/cab" 
+      <Route
+        path="/cab"
         element={
           <ProtectedRoute>
             <Cab />
             <Navbar />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/cab/search-results" 
+      <Route
+        path="/cab/search-results"
         element={
           <ProtectedRoute>
             <CabSearchResults />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/cab/review" 
+      <Route
+        path="/cab/review"
         element={
           <ProtectedRoute>
             <ReviewBooking />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/cab/confirmation" 
+      <Route
+        path="/cab/confirmation"
         element={
           <ProtectedRoute>
-            <CabBookingConfirmation />
+            <ConfirmationBooking />
           </ProtectedRoute>
-        } 
+        }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

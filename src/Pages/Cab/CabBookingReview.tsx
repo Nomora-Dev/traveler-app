@@ -56,6 +56,8 @@ const CabBookingReview = () => {
     const navigate = useNavigate();
     const { bookingDetails, type, userInput } = location.state || {};
 
+    console.log(location.state);
+
     if (!bookingDetails || !type) {
         navigate('/cab');
         return null;
@@ -228,7 +230,6 @@ const CabBookingReview = () => {
                 <button
                     className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold text-lg shadow-md hover:bg-indigo-700 transition"
                     onClick={() => {
-                        // Handle booking confirmation
                         navigate('/cab/confirmation', {
                             state: {
                                 bookingDetails,
