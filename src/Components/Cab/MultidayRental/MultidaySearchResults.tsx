@@ -24,7 +24,7 @@ interface MultidaySearchResultsProps {
     userInput: any;
 }
 
-const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchResults, tripDetails }) => {
+const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchResults, tripDetails, userInput }) => {
     const [selectedFilter, setSelectedFilter] = useState('All');
     const [selectedOption, setSelectedOption] = useState<{
         supplierId: number;
@@ -81,7 +81,7 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
     const FareBreakupModal = ({ category, onClose }: any) => {
         const pricing = category.pricing;
         const distance = category.distance_info;
-        const taxes = Math.round(pricing.final_price * 0.05); // Example: 5% tax
+        // const taxes = Math.round(pricing.final_price * 0.05); // Example: 5% tax
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-t-xl mt-auto max-h-[90vh] overflow-y-auto shadow-xl w-full max-w-md mx-auto p-6 relative animate-fadeIn">
@@ -148,11 +148,11 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
                             )}
                             <div className="flex justify-between">
                                 <span>Taxes & fees (5%)</span>
-                                <span>{formatPrice(taxes)}</span>
+                                <span>{formatPrice(pricing.taxes)}</span>
                             </div>
                             <div className="flex justify-between font-semibold border-t pt-2 mt-2">
                                 <span>Total fare</span>
-                                <span>{formatPrice(pricing.final_price + taxes)}</span>
+                                <span>{formatPrice(pricing.final_price)}</span>
                             </div>
                         </div>
                     </div>
@@ -181,7 +181,7 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
         ) || {};
         if (!supplier || !category) return null;
         const pricing = category.pricing;
-        const taxes = Math.round(pricing.final_price * 0.05); // Example: 5% tax
+        // const taxes = Math.round(pricing.final_price * 0.05); // Example: 5% tax
         return {
             pickup_location: searchResults.route_info.pickup_location,
             drop_location: searchResults.route_info.drop_location,
@@ -194,9 +194,9 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
             ac: 'AC',
             car_seater: category.seating_capacity + ' Seater',
             operator: supplier.name,
-            base_fare: pricing.base_price * numberOfDays,
-            taxes: taxes,
-            total_fare: pricing.final_price + taxes,
+            numberOfDays: numberOfDays,
+            numberOfNights: numberOfNights,
+            pricing: pricing,
             vehicle_name: category.vehicle_list?.join(', '),
             vehicle_type: category.name,
             payment_method: 'Pay in Cash',
@@ -363,6 +363,7 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
                                 state: {
                                     bookingDetails,
                                     type: 'multiday',
+                                    userInput: userInput
                                 },
                             });
                         }

@@ -91,6 +91,7 @@ export interface MultidaySupplierCategory {
     seating_capacity: number;
     vehicle_list: string[];
     pricing: {
+        taxes: any;
         base_price: number;
         included_kms: number;
         price_per_km: number;
