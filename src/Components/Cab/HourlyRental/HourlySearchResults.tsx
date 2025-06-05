@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { MapPin, Users, Clock, Star, Car, X } from 'lucide-react';
-import type { HourlySearchResponse, HourlySupplier, HourlySupplierCategory } from '../../types/types';
+import type { HourlySearchResponse, HourlySupplier, HourlySupplierCategory } from '../../../types/types';
 import { useNavigate } from 'react-router-dom';
-import FareBreakupModal from './FareBreakupModal';
+import FareBreakupModal from '../FareBreakupModal';
 
 const FILTERS = [
     { label: 'All', value: 'all' },

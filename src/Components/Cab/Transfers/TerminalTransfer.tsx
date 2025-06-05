@@ -1,7 +1,7 @@
 import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import type { LocationSuggestion, TerminalTransferBooking } from '../../types/types';
-import { getLocationSuggestions, getTerminalTransferBooking, getTerminalSuggestions } from '../../services/cab';
+import type { LocationSuggestion, TerminalTransferBooking } from '../../../types/types';
+import { getLocationSuggestions, getTerminalTransferBooking, getTerminalSuggestions } from '../../../services/cab';
 import CabSearchResults from './TransferCabSearchResults';
 import { useNavigate } from 'react-router-dom';
 

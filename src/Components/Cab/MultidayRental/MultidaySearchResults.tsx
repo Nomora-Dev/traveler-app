@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Car, Star, Clock, MapPin, ChevronRight, X, Users, Calendar } from 'lucide-react';
-import type { MultidaySearchResponse } from '../../types/types';
+import type { MultidaySearchResponse } from '../../../types/types';
 import { useNavigate } from 'react-router-dom';
 
 const FILTERS = ['All', 'Sedan', 'SUV', 'Hatchback'];

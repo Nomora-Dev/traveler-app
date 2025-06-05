@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Users, Plus, X } from 'lucide-react';
-import { getMultidayTransferBooking, getLocationSuggestions } from '../../services/cab';
-import type { MultidaySearchResponse, LocationSuggestion } from '../../types/types';
+import { getMultidayTransferBooking, getLocationSuggestions } from '../../../services/cab';
+import type { MultidaySearchResponse, LocationSuggestion } from '../../../types/types';
 import MultidaySearchResults from './MultidaySearchResults';
-import CabSearchTab from './CabSearchTab';
+import CabSearchTab from '../CabSearchTab';
 import { useNavigate } from 'react-router-dom';
 
 const quickStops = ['Mysore Palace', 'Coorg Resort'];

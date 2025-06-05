@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import CityTransfer from '../Components/Cab/CityTransfer';
-import TerminalTransfer from '../Components/Cab/TerminalTransfer';
+import CityTransfer from '../Components/Cab/Transfers/CityTransfer';
+import TerminalTransfer from '../Components/Cab/Transfers/TerminalTransfer';
 import Navbar from '../Components/Navbar';
-import MultidayRental from '../Components/Cab/MultidayRental';
-import Hourly from '../Components/Cab/Hourly';
+import MultidayRental from '../Components/Cab/MultidayRental/MultidayRental';
+import Hourly from '../Components/Cab/HourlyRental/Hourly';
 
 const tabList = [
     { label: 'City', value: 'city' },

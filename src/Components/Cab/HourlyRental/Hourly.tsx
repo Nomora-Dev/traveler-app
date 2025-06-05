@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Calendar, Clock, MapPin, Users, Plus } from 'lucide-react';
-import CabSearchTab from './CabSearchTab';
-import { getLocationSuggestions, getHourlyTransferBooking } from '../../services/cab';
-import type { LocationSuggestion, HourlySearchResponse } from '../../types/types';
+import CabSearchTab from '../CabSearchTab';
+import { getLocationSuggestions, getHourlyTransferBooking } from '../../../services/cab';
+import type { LocationSuggestion, HourlySearchResponse } from '../../../types/types';
 import HourlySearchResults from './HourlySearchResults';
 import { useNavigate } from 'react-router-dom';
 

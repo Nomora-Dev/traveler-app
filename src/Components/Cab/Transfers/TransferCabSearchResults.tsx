@@ -301,7 +301,7 @@ const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults, user
                             navigate('/cab/review', {
                                 state: {
                                     bookingDetails,
-                                    type: 'city',
+                                    type: 'terminal',
                                     userInput: userInput,
                                 },
                             });

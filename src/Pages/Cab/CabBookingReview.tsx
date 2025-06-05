@@ -173,15 +173,13 @@ const CabBookingReview = () => {
                                 <span>{formatPrice(pricing?.driver_allowance)}</span>
                             </div>
                         )}
-                        {pricing?.taxes && (
-                            <div className="flex justify-between">
-                                <span>Taxes & fees</span>
-                                <span>{formatPrice(pricing?.taxes)}</span>
-                            </div>
-                        )}
+                        <div className="flex justify-between">
+                            <span>Taxes & fees</span>
+                            <span>{formatPrice(pricing?.tax ? pricing?.tax : bookingDetails.final_price * 0.05)}</span>
+                        </div>
                         <div className="flex justify-between font-semibold border-t pt-2 mt-2">
                             <span>Total fare</span>
-                            <span>{formatPrice(pricing?.final_price || bookingDetails.final_price)}</span>
+                            <span>{formatPrice(pricing?.final_price ? pricing?.final_price : bookingDetails.final_price * 1.05)}</span>
                         </div>
                     </div>
                 </div>
@@ -211,8 +209,15 @@ const CabBookingReview = () => {
                     <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
                         {type === 'city' ? cityTransferTerms.map((term: any, index: number) => (
                             <li key={index}>{term}</li>
-                        )) : type === 'terminal' ? staticTerminalTransferTerms.map((term: any, index: number) => (
-                            <li key={index}>{term.title}</li>
+                        )) : type === 'terminal' ? Object.keys(staticTerminalTransferTerms).map((term: any, index: number) => (
+                            <div key={index} className="mb-2">
+                                <div className="text-sm font-semibold">{staticTerminalTransferTerms[term].title}</div>
+                                <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600 mt-1">
+                                    {staticTerminalTransferTerms[term].points.map((point: any, index: number) => (
+                                        <li key={index}>{point}</li>
+                                    ))}
+                                </ul>
+                            </div>
                         )) : pricingInfo.termsAndConditions.map((term: any, index: number) => (
                             <li key={index}>{term}</li>
                         ))}
