@@ -172,6 +172,21 @@ const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults, user
             operator: option.supplier_name,
             final_price: option.calculated_final_price,
             payment_method: 'Pay in Cash',
+            
+            // Additional data needed for API call
+            supplier_id: option.supplier_id,
+            service_type: userInput.service_type,
+            is_ac: option.is_ac === 'true',
+            fareDetails: {
+                base_fare: option.base_fare || Math.round(option.calculated_final_price - (option.taxes || 0)),
+                taxes: option.taxes || 0,
+                total_fare: option.calculated_final_price
+            },
+            pricingFramework: {
+                supplier_id: option.supplier_id,
+                car_category_id: option.car_category_id,
+                is_ac: option.is_ac === 'true'
+            }
         };
     };
 

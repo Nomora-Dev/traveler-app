@@ -9,6 +9,7 @@ import CabBookingConfirmation from './Pages/Cab/Review/CabBookingConfirmation'
 import CityBookingConfirmation from './Pages/Cab/Review/CityBookingConfirmation'
 import HourlyBookingConfirmation from './Pages/Cab/Review/HourlyBookingConfirmation'
 import MultidayBookingConfirmation from './Pages/Cab/Review/MultidayBookingConfirmation'
+import BookingDetails from './Pages/Cab/BookingDetails'
 import { Route, Routes, BrowserRouter as Router, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './Components/ProtectedRoute'
@@ -94,6 +95,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <CabSearchResults />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/cab/booking/:bookingId"
+        element={
+          <ProtectedRoute>
+            <BookingDetails />
           </ProtectedRoute>
         }
       />

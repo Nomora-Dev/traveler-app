@@ -111,3 +111,31 @@ export const getMultidayTransferBooking = async (params: any): Promise<MultidayS
     const response = await axios.get(`${API_BASE_URL}/rentals/search`, { params });
     return response.data;
 };
+
+export const createBooking = async (bookingData: any) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/bookings/create`, bookingData, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error creating booking:', error);
+        throw error;
+    }
+};
+
+export const getBookingDetails = async (bookingId: string) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/bookings/details/${bookingId}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching booking details:', error);
+        throw error;
+    }
+};
