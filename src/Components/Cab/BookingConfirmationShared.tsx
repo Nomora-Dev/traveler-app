@@ -16,7 +16,8 @@ const statusSteps = [
 
 const BookingConfirmationShared: React.FC<BookingConfirmationSharedProps> = ({ bookingDetails, type, userInput }) => {
     const navigate = useNavigate();
-    const booking = bookingDetails;
+    let booking = bookingDetails;
+    booking.status = 'confirmed';
     const currentStatusIndex = statusSteps.findIndex(step => step.key === booking.status) + 2;
 
     // Dynamic fields for each type
@@ -24,6 +25,66 @@ const BookingConfirmationShared: React.FC<BookingConfirmationSharedProps> = ({ b
     let tripDetails = null;
 
     console.log(bookingDetails, userInput);
+
+    // Helper: is driver assigned?
+    const driverAssigned = booking.driver && booking.driver.name;
+
+    // Banner and driver info logic
+    let statusBanner = null;
+    if (booking.status === 'completed') {
+        statusBanner = (
+            <div className="flex flex-col items-center mb-4">
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-2">
+                    <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </div>
+                <div className="text-lg font-bold text-green-700">Trip Completed</div>
+            </div>
+        );
+    } else if (booking.status === 'confirmed') {
+        statusBanner = (
+            <div className="flex flex-col items-center mb-4">
+                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mb-2">
+                    <svg className="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </div>
+                <div className="text-lg font-bold text-indigo-700">Booking Confirmed!</div>
+                {userInput.pickup_time_type === 'later' && !driverAssigned && (
+                    <div className="text-xs text-gray-500 mt-1">Driver will be assigned 4 hours before pickup</div>
+                )}
+            </div>
+        );
+    }
+
+    // Driver info or pending
+    let driverSection = null;
+    if (booking.status === 'confirmed' && driverAssigned) {
+        driverSection = (
+            <div className="rounded-xl border p-4 mb-4 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </div>
+                <div>
+                    <div className="font-semibold text-gray-800">{booking.driver.name}</div>
+                    <div className="text-xs text-gray-500">{booking.driver.phone}</div>
+                    <div className="text-xs text-gray-500">{booking.driver.vehicle} • {booking.driver.plate}</div>
+                </div>
+                <a href={`tel:${booking.driver.phone}`} className="ml-auto bg-indigo-600 text-white px-3 py-1 rounded text-xs">Call</a>
+            </div>
+        );
+    } else if (booking.status === 'confirmed' && userInput.pickup_time_type === 'later' && !driverAssigned) {
+        driverSection = (
+            <div className="rounded-xl border p-4 mb-4 flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20.5C6.201 20.5 1 15.299 1 9.5S6.201-1.5 12-1.5 23 4.701 23 10.5 17.799 20.5 12 20.5z" /></svg>
+                </div>
+                <div className="font-semibold text-gray-700">Driver Details Pending</div>
+                <div className="text-xs text-gray-500 mt-1">Driver and vehicle details will be assigned 4 hours before your scheduled pickup</div>
+                <button className="mt-2 w-full bg-gray-100 text-gray-400 py-2 rounded" disabled>
+                    <svg className="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A2 2 0 0020 6.382V5a2 2 0 00-2-2H6a2 2 0 00-2 2v1.382a2 2 0 00.447 1.342L9 10m6 0v10m0 0a2 2 0 01-2 2H7a2 2 0 01-2-2V10m11 10a2 2 0 002-2V10m-2 10V10" /></svg>
+                    Call Driver
+                </button>
+            </div>
+        );
+    }
 
     if (type === 'city' || type === 'terminal') {
         pickupInfo = (
@@ -222,6 +283,8 @@ const BookingConfirmationShared: React.FC<BookingConfirmationSharedProps> = ({ b
                     We'll notify you via SMS & WhatsApp when your booking is confirmed
                 </p>
             </div>
+            {statusBanner}
+            {driverSection}
             {/* Pickup Info */}
             {pickupInfo}
             {/* Trip Details */}
