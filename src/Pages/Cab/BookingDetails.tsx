@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MapPin, Users, Clock, Star, Car, Phone, ArrowLeft } from 'lucide-react';
+import { MapPin, Users, Clock, Star, Car, Phone, ArrowLeft, Bell, LocateIcon } from 'lucide-react';
 import { getBookingDetails } from '../../services/cab';
 
 const BookingDetails: React.FC = () => {
@@ -63,178 +63,204 @@ const BookingDetails: React.FC = () => {
     const userInput = booking.userinput || {};
     const acceptedRequest = booking_requests?.find((req: any) => req.status === 'accepted' || req.status === 'confirmed');
 
+    // Status steps for booking progress
+    const statusSteps = [
+        { label: 'Requested', key: 'requested' },
+        { label: 'Pending', key: 'pending' },
+        { label: 'Driver Onway', key: 'onway' },
+    ];
+
+    // Determine current status index
+    let currentStatusIndex = 0;
+    if (booking.booking_status === 'awaiting_supplier_confirmation') {
+        currentStatusIndex = 1;
+    } else if (booking.booking_status === 'confirmed') {
+        currentStatusIndex = 2;
+    }
+
+    // Service type display name
+    const getServiceDisplayName = (serviceType: string) => {
+        switch (serviceType) {
+            case 'city_transfer': return 'Intercity Transfer';
+            case 'terminal_transfer': return 'Terminal Transfer';
+            case 'hourly_rental': return 'Hourly Rental';
+            case 'multiday_rental': return 'Multiday Rental';
+            default: return 'Transfer';
+        }
+    };
+
+    // Get timing type (assuming from userInput)
+    const timingType = userInput.timing || 'now';
+
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="max-w-md mx-auto bg-white min-h-screen">
             {/* Header */}
-            <div className="bg-white shadow-sm">
-                <div className="max-w-2xl mx-auto px-6 py-4">
-                    <div className="flex items-center gap-4">
-                        <button 
-                            onClick={() => navigate('/cab')}
-                            className="p-2 hover:bg-gray-100 rounded-lg"
-                        >
-                            <ArrowLeft className="w-5 h-5 text-gray-600" />
+            <div className="p-4 border-b">
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={() => navigate('/cab')}
+                        className="text-gray-600"
+                    >
+                        <ArrowLeft className="w-6 h-6" />
+                    </button>
+                    <h1 className="text-lg font-semibold">Booking Details</h1>
+                    <div className="ml-auto">
+                        <button className="text-gray-600">
+                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                            </svg>
                         </button>
-                        <div>
-                            <h1 className="text-xl font-bold text-gray-900">Booking Details</h1>
-                            <p className="text-sm text-gray-500">Booking ID: {booking.id}</p>
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto px-6 py-6 space-y-6">
-                {/* Booking Status */}
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-semibold text-gray-900">Booking Status</h2>
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            booking.booking_status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                            booking.booking_status === 'awaiting_supplier_confirmation' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                        }`}>
-                            {booking.booking_status?.replace(/_/g, ' ').toUpperCase()}
+            <div className="p-4 space-y-4">
+                {/* Status Card */}
+                <div className="rounded-xl bg-indigo-50 p-4">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="text-sm font-semibold text-indigo-800 flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            {booking.booking_status === 'confirmed' ? 'Booking Confirmed' : 'Pending Operator Confirmation'}
+                        </div>
+                        <span className={`text-xs ${timingType === 'now' ? 'bg-orange-100 text-orange-700' : 'bg-blue-200 text-blue-800'} font-semibold px-2 py-1 rounded-xl`}>
+                            {timingType === 'now' ? 'On-demand' : 'Scheduled'}
                         </span>
                     </div>
-                    {booking.total_price && (
-                        <div className="mt-4">
-                            <p className="text-2xl font-bold text-gray-900">₹{booking.total_price}</p>
-                            <p className="text-sm text-gray-500">Total amount</p>
-                        </div>
-                    )}
+                    <div className="text-sm text-gray-600 mb-2">
+                        Estimated confirmation time <span className="font-medium text-gray-900">5-10 mins</span>
+                    </div>
+                    
+                    {/* Progress Steps */}
+                    <div className="flex items-center justify-between mt-4 relative">
+                        {statusSteps.map((step, idx) => {
+                            const isCompleted = idx < currentStatusIndex;
+                            const isCurrent = idx === currentStatusIndex;
+                            const circleClass = isCompleted
+                                ? 'bg-indigo-600 border-indigo-600 text-white'
+                                : isCurrent
+                                    ? 'bg-indigo-500 border-indigo-500 text-white'
+                                    : 'bg-gray-200 border-gray-300 text-gray-400';
+                            return (
+                                <React.Fragment key={step.key}>
+                                    <div className="flex flex-col items-center flex-1 relative">
+                                        <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${circleClass} z-20`}>
+                                            {isCompleted ? (
+                                                <span className="text-lg">✓</span>
+                                            ) : (
+                                                <span className="w-2 h-2 rounded-full bg-current block"></span>
+                                            )}
+                                        </div>
+                                        <span className={`text-xs mt-1 ${isCompleted || isCurrent ? 'text-indigo-600 font-medium' : 'text-gray-400'}`}>
+                                            {step.label}
+                                        </span>
+                                        {idx < statusSteps.length - 1 && (
+                                            <div className={`absolute top-4 left-1/2 w-full h-0.5 ${isCompleted ? 'bg-indigo-500' : 'bg-gray-200'} z-10`} />
+                                        )}
+                                    </div>
+                                </React.Fragment>
+                            );
+                        })}
+                    </div>
+                    
+                    <p className="text-xs flex gap-2 items-start text-gray-500 mt-4">
+                        <Bell className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                        We'll notify you via SMS & WhatsApp once an operator confirms your scheduled booking
+                    </p>
+                </div>
+
+                {/* Service Type and Route */}
+                <div className="rounded-xl border p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">{getServiceDisplayName(booking.service_type)}</span>
+                        <span className={`text-xs ${timingType === 'now' ? 'bg-orange-100 text-orange-700' : 'bg-blue-200 text-blue-800'} font-semibold px-2 py-1 rounded-xl`}>
+                            {timingType === 'now' ? 'On-demand' : 'Scheduled'}
+                        </span>
+                    </div>
+                    <div className="text-base font-semibold text-gray-800 mb-1">
+                        {booking.pickup_location} to {booking.drop_location?.split(',')[0] || 'Drop Location'}
+                    </div>
+                    <div className="text-sm text-gray-600 flex items-center gap-2">
+                        <Car className="w-4 h-4" />
+                        {booking.car_category_name || 'SUV'} • {booking.pax_count} Seater • {booking.is_ac ? 'AC' : 'Non-AC'}
+                    </div>
                 </div>
 
                 {/* Trip Details */}
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Trip Details</h2>
+                <div className="rounded-xl border p-4">
+                    <h3 className="text-sm font-semibold mb-3 text-gray-800">Trip Details</h3>
                     
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         <div className="flex items-start gap-3">
-                            <MapPin className="w-5 h-5 text-indigo-500 mt-0.5" />
+                            <MapPin className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
                             <div>
-                                <p className="text-sm text-gray-500">Pickup</p>
-                                <p className="font-medium text-gray-900">{booking.pickup_location}</p>
+                                <div className="text-xs text-gray-500">Pickup Location</div>
+                                <div className="font-medium text-gray-800 text-sm">{booking.pickup_location}</div>
                             </div>
                         </div>
                         
                         <div className="flex items-start gap-3">
-                            <MapPin className="w-5 h-5 text-orange-500 mt-0.5" />
+                            <LocateIcon className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
                             <div>
-                                <p className="text-sm text-gray-500">Drop</p>
-                                <p className="font-medium text-gray-900">{booking.drop_location}</p>
+                                <div className="text-xs text-gray-500">Drop Location</div>
+                                <div className="font-medium text-gray-800 text-sm">{booking.drop_location}</div>
                             </div>
                         </div>
 
-                        {userInput.estimated_distance && (
-                            <div className="flex items-center gap-6 text-sm text-gray-600 pt-2">
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="w-4 h-4" />
-                                    <span>{userInput.estimated_distance} km</span>
+                        {userInput.estimated_duration && (
+                            <div className="flex items-start gap-3">
+                                <Clock className="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" />
+                                <div>
+                                    <div className="text-xs text-gray-500">Estimated Trip Duration</div>
+                                    <div className="font-medium text-gray-800 text-sm">{userInput.estimated_duration}</div>
                                 </div>
-                                {userInput.estimated_duration && (
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="w-4 h-4" />
-                                        <span>{userInput.estimated_duration}</span>
-                                    </div>
-                                )}
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* Vehicle & Supplier Details */}
-                {acceptedRequest && (
-                    <div className="bg-white rounded-xl shadow-sm p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Vehicle & Supplier</h2>
-                        
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="font-semibold text-gray-900">{acceptedRequest.supplier_name}</p>
-                                    <div className="flex items-center gap-1 text-yellow-500 text-sm">
-                                        <Star className="w-4 h-4" />
-                                        <span>4.5</span>
-                                        <span className="text-gray-400">(123)</span>
-                                    </div>
-                                </div>
-                                {acceptedRequest.proposed_price && (
-                                    <div className="text-right">
-                                        <p className="text-xl font-bold text-gray-900">₹{acceptedRequest.proposed_price}</p>
-                                        <p className="text-xs text-gray-500">Final price</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex flex-wrap gap-2">
-                                <span className="flex items-center gap-1 px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium">
-                                    <Car className="w-4 h-4" /> {booking.car_category_name}
-                                </span>
-                                {booking.is_ac && (
-                                    <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                                        AC
-                                    </span>
-                                )}
-                                <span className="flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-                                    <Users className="w-4 h-4" /> {booking.pax_count} Seats
-                                </span>
-                            </div>
-
-                            {acceptedRequest.vehicle_model && (
-                                <p className="text-sm text-gray-600">
-                                    {acceptedRequest.vehicle_model} {acceptedRequest.vehicle_number && `(${acceptedRequest.vehicle_number})`}
-                                </p>
-                            )}
-                        </div>
+                {/* WhatsApp Updates */}
+                <div className="rounded-xl border p-4 bg-green-50">
+                    <div className="flex items-center gap-2 text-sm text-green-900 mb-2">
+                        <Phone className="w-4 h-4" />
+                        Get instant updates on WhatsApp
                     </div>
-                )}
-
-                {/* Fare Breakdown */}
-                {acceptedRequest?.faredetails && (
-                    <div className="bg-white rounded-xl shadow-sm p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Fare Breakdown</h2>
-                        
-                        <div className="space-y-3">
-                            {acceptedRequest.faredetails.base_fare && (
-                                <div className="flex justify-between text-sm">
-                                    <span>Base fare</span>
-                                    <span>₹{acceptedRequest.faredetails.base_fare}</span>
-                                </div>
-                            )}
-                            {acceptedRequest.faredetails.taxes && (
-                                <div className="flex justify-between text-sm">
-                                    <span>Taxes</span>
-                                    <span>₹{acceptedRequest.faredetails.taxes}</span>
-                                </div>
-                            )}
-                            <div className="border-t pt-3">
-                                <div className="flex justify-between font-bold">
-                                    <span>Total fare</span>
-                                    <span>₹{acceptedRequest.faredetails.total_fare || acceptedRequest.proposed_price}</span>
-                                </div>
-                            </div>
-                        </div>
+                    <p className="text-xs text-gray-700 mb-3">
+                        Get instant updates about your intercity trip, driver details and live location tracking on WhatsApp
+                    </p>
+                    <div className="flex gap-2">
+                        <button className="flex-1 bg-green-600 text-white text-sm py-2 rounded-md font-medium">
+                            Allow
+                        </button>
+                        <button className="flex-1 border border-gray-300 text-gray-700 text-sm py-2 rounded-md">
+                            Don't Allow
+                        </button>
                     </div>
-                )}
+                </div>
 
-                {/* Contact Information */}
-                {booking.booking_status === 'confirmed' && assignment && (
-                    <div className="bg-white rounded-xl shadow-sm p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
-                        
-                        {assignment.driver_name && (
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p className="font-medium text-gray-900">Driver: {assignment.driver_name}</p>
-                                    <p className="text-sm text-gray-500">Assigned driver</p>
-                                </div>
-                                <button className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg">
-                                    <Phone className="w-4 h-4" />
-                                    Call
-                                </button>
-                            </div>
-                        )}
+                {/* Booking Information */}
+                <div className="rounded-xl border p-4 text-sm">
+                    <div className="flex justify-between items-center mb-2">
+                        <span className="text-gray-500">Booking ID</span>
+                        <span className="font-medium text-gray-800">{booking.id?.substring(0, 8)?.toUpperCase() || 'BK1278459'}</span>
                     </div>
-                )}
+                    <div className="flex justify-between items-center mb-2">
+                        <span className="text-gray-500">Booking Date</span>
+                        <span className="font-medium text-gray-800">
+                            {new Date(booking.created_at).toLocaleDateString('en-GB', { 
+                                day: 'numeric', 
+                                month: 'short', 
+                                year: 'numeric' 
+                            })}
+                        </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-gray-500">Operator</span>
+                        <span className="font-medium text-gray-800 flex items-center gap-1">
+                            {acceptedRequest?.supplier_name || 'FastCabs'}
+                            <span className="text-blue-500 text-xs">✔</span>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     );
