@@ -1,4 +1,4 @@
-import BookingConfirmationShared from '../../Components/Cab/BookingConfirmationShared';
+import BookingConfirmationShared from '../../../Components/Cab/BookingConfirmationShared';
 import { useLocation } from 'react-router-dom';
 
 const HourlyBookingConfirmation = () => {

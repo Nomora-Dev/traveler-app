@@ -161,23 +161,21 @@ const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults, user
         return {
             pickup_location: pickup_location.formatted_address,
             drop_location: drop_location.formatted_address,
-            pickup_date: actual_travel_info.pickup_date, // You may need to adjust this field
-            pickup_time: actual_travel_info.pickup_time, // You may need to adjust this field
             pax_count: option.seating_capacity,
             estimated_distance: actual_travel_info.distance_km,
             estimated_duration: actual_travel_info.duration,
             car_category: option.car_category_name,
+            car_category_id: option.car_category_id,
             ac: option.is_ac === 'true' ? 'AC' : 'Non AC',
             car_seater: option.seating_capacity + ' Seater',
+
             operator: option.supplier_name,
             final_price: option.calculated_final_price,
-            vehicle_name: option.car_model_names,
-            vehicle_type: option.car_category_name,
             payment_method: 'Pay in Cash',
-            pricing_criteria: option.pricing_criteria, // If available
-            terms: option.terms, // If available
         };
     };
+
+    console.log(getBookingDetails());
 
     return (
         <div className="bg-white px-6 flex flex-col mb-12">

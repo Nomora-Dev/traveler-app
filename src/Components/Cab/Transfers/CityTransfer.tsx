@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { MapPin, Users, Calendar, Clock } from 'lucide-react';
 import type { LocationSuggestion, TransferBooking } from '../../../types/types';
 import { getLocationSuggestions, getTransferBooking } from '../../../services/cab';
-import CabSearchResults from './TransferCabSearchResults';
+// import CabSearchResults from './TransferCabSearchResults';
 import { useNavigate } from 'react-router-dom';
 
 const quickPickup = ['Hotel Sunrise, Manali', 'Mall Road', 'Old Bus Stand'];
@@ -20,11 +20,9 @@ const CityTransfer = () => {
     pickup_time: null,
   });
 
-  const [searchResults, setSearchResults] = useState<any>(null);
+  // const [searchResults, setSearchResults] = useState<any>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
-
-  console.log(formData);
 
   const latestRequestId = useRef(0);
 

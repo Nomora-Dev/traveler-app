@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, Clock, Users, Car, Info, CheckCircle2 } from 'lucide-react';
-import Navbar from '../../Components/Navbar';
+import Navbar from '../../../Components/Navbar';
 
 const staticTransferPricingCriteria = [
     'Tolls, parking, permits, and taxes are excluded; to be paid offline.',
@@ -9,11 +9,13 @@ const staticTransferPricingCriteria = [
     'In case of drop to terminal, 15 minutes of waiting at pickup; ₹50 per additional 15 minutes.',
     'Change in pickup/drop location (town/village/city) may incur additional charges.'
 ];
+
 const cityTransferTerms = [
     'Free cancellation within 5 minutes of booking confirmation.',
     '₹100 cancellation fee applies after 5 minutes.',
 ];
-const staticTerminalTransferTerms = [
+
+const terminalTransferTerms = [
     {
         title: 'Pickup from Terminal',
         points: [
@@ -30,46 +32,17 @@ const staticTerminalTransferTerms = [
     }
 ];
 
-const pricingInfo = {
-    pricingCriteria: [
-        'Additional charges like toll fees, parking charges, permits, and state taxes are payable separately.',
-        'Base Fare: ₹249/hour with complimentary 30 km travel distance',
-        'Additional hours charged at ₹500/hour, calculated in 30-minute blocks',
-        'Additional distance beyond 30 km charged at ₹18/km',
-        'Initial waiting time of 10 minutes is free, post which trip timer starts',
-        '10-minute grace period at trip end, post which hourly charges apply',
-        'Night charges of ₹200 applicable between 11 PM to 6 AM',
-        'Additional driver allowance of ₹300 for night trips (11 PM to 6 AM)'
-    ],
-    termsAndConditions: [
-        'Free cancellation within 5 (on-demand) minutes or 1 hour (scheduled rides) before pickup. ₹100 cancellation fee applies thereafter.',
-        'Free rescheduling up to 1 hour prior. ₹100 fee thereafter.',
-        'No refund for early trip completion. Unused time or kilometers are non-refundable.',
-        'Service valid only within city/town limits. Intercity/town or terminal trips have different pricing.',
-        'For trip extensions, partial hours are rounded up to the next half hour.',
-        'In case of vehicle breakdown, we\'ll assist with rescheduling or refund for unused duration.'
-    ]
-};
-
-const CabBookingReview = () => {
+const TransferBookingReview = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { bookingDetails, type, userInput } = location.state || {};
 
-    console.log(location.state);
-
+    console.log(bookingDetails, type, userInput);
+    
     if (!bookingDetails || !type) {
         navigate('/cab');
         return null;
     }
-
-    console.log(bookingDetails);
-
-    // const paxCount = userInput?.pax_count || bookingDetails.pax_count;
-
-    const pricing = bookingDetails.pricing;
-
-    console.log(pricing);
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-IN', {
@@ -80,7 +53,7 @@ const CabBookingReview = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 mb-12">
+        <div className="min-h-screen bg-gray-50 mb-16">
             {/* Header */}
             <div className="bg-white px-4 py-4 flex items-center gap-4 border-b">
                 <button onClick={() => navigate(-1)} className="text-gray-600">
@@ -90,7 +63,7 @@ const CabBookingReview = () => {
             </div>
 
             {/* Content */}
-            <div className="max-w-2xl mx-auto px-4 py-6">
+            <div className="p-4 space-y-4">
                 {/* Trip Details */}
                 <div className="bg-white rounded-xl p-4 mb-4">
                     <h2 className="text-lg font-semibold mb-4">Trip Details</h2>
@@ -113,16 +86,16 @@ const CabBookingReview = () => {
                             <Calendar className="w-5 h-5 text-gray-500 mt-1" />
                             <div>
                                 <div className="text-sm text-gray-500">Date</div>
-                                <div className="font-medium">{bookingDetails.pickup_date}</div>
+                                <div className="font-medium">{bookingDetails.pickup_date || new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) + ' | ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</div>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3">
+                        {/* <div className="flex items-start gap-3">
                             <Clock className="w-5 h-5 text-gray-500 mt-1" />
                             <div>
                                 <div className="text-sm text-gray-500">Time</div>
                                 <div className="font-medium">{bookingDetails.pickup_time}</div>
                             </div>
-                        </div>
+                        </div> */}
                         <div className="flex items-start gap-3">
                             <Users className="w-5 h-5 text-gray-500 mt-1" />
                             <div>
@@ -167,21 +140,15 @@ const CabBookingReview = () => {
                     <div className="space-y-2">
                         <div className="flex justify-between">
                             <span>Base fare</span>
-                            <span>{formatPrice(pricing?.base_price || bookingDetails.final_price)}</span>
+                            <span>{formatPrice(bookingDetails.final_price)}</span>
                         </div>
-                        {pricing?.driver_allowance && (
-                            <div className="flex justify-between">
-                                <span>Driver allowance</span>
-                                <span>{formatPrice(pricing?.driver_allowance)}</span>
-                            </div>
-                        )}
                         <div className="flex justify-between">
                             <span>Taxes & fees</span>
-                            <span>{formatPrice(pricing?.tax ? pricing?.tax : bookingDetails.final_price * 0.05)}</span>
+                            <span>{formatPrice(bookingDetails.final_price * 0.05)}</span>
                         </div>
                         <div className="flex justify-between font-semibold border-t pt-2 mt-2">
                             <span>Total fare</span>
-                            <span>{formatPrice(pricing?.final_price ? pricing?.final_price : bookingDetails.final_price * 1.05)}</span>
+                            <span>{formatPrice(bookingDetails.final_price * 1.05)}</span>
                         </div>
                     </div>
                 </div>
@@ -195,33 +162,31 @@ const CabBookingReview = () => {
                     </div>
                 </div>
 
+                {/* Pricing Criteria */}
                 <div className="bg-white rounded-xl p-4 mb-4">
                     <h2 className="text-lg font-semibold mb-4">Pricing Criteria</h2>
                     <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
-                        {type === 'city' ? staticTransferPricingCriteria.map((term: any, index: number) => (
-                            <li key={index}>{term}</li>
-                        )) : pricingInfo.pricingCriteria.map((term: any, index: number) => (
+                        {staticTransferPricingCriteria.map((term, index) => (
                             <li key={index}>{term}</li>
                         ))}
                     </ul>
                 </div>
+
                 {/* Terms & Conditions */}
                 <div className="bg-white rounded-xl p-4 mb-4">
                     <h2 className="text-lg font-semibold mb-4">Terms & Conditions</h2>
                     <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
-                        {type === 'city' ? cityTransferTerms.map((term: any, index: number) => (
+                        {type === 'city' ? cityTransferTerms.map((term, index) => (
                             <li key={index}>{term}</li>
-                        )) : type === 'terminal' ? Object.keys(staticTerminalTransferTerms).map((term: any, index: number) => (
+                        )) : terminalTransferTerms.map((section, index) => (
                             <div key={index} className="mb-2">
-                                <div className="text-sm font-semibold">{staticTerminalTransferTerms[term].title}</div>
+                                <div className="text-sm font-semibold">{section.title}</div>
                                 <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600 mt-1">
-                                    {staticTerminalTransferTerms[term].points.map((point: any, index: number) => (
-                                        <li key={index}>{point}</li>
+                                    {section.points.map((point, idx) => (
+                                        <li key={idx}>{point}</li>
                                     ))}
                                 </ul>
                             </div>
-                        )) : pricingInfo.termsAndConditions.map((term: any, index: number) => (
-                            <li key={index}>{term}</li>
                         ))}
                     </ul>
                 </div>
@@ -247,4 +212,4 @@ const CabBookingReview = () => {
     );
 };
 
-export default CabBookingReview; 
+export default TransferBookingReview; 

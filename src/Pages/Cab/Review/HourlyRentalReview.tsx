@@ -1,33 +1,33 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, Clock, Users, Car, Info, CheckCircle2 } from 'lucide-react';
-import Navbar from '../../Components/Navbar';
+import Navbar from '../../../Components/Navbar';
 
-const multidayPricingCriteria = [
+const hourlyPricingCriteria = [
     'Additional charges like toll fees, parking charges, permits, and state taxes are payable separately.',
-    'Base fare includes driver and fuel charges for the entire duration.',
-    'Driver allowance is charged per night for overnight stays.',
-    'Night driving fee applies for trips between 11 PM to 6 AM.',
-    'Extra hours beyond the daily limit are charged at ₹500/hour.',
-    'Dead return cost applies for one-way trips.',
-    'Service valid for both intercity and intracity travel.',
-    'For trip extensions, additional days are charged at the same rate.'
+    'Base Fare: ₹249/hour with complimentary 30 km travel distance',
+    'Additional hours charged at ₹500/hour, calculated in 30-minute blocks',
+    'Additional distance beyond 30 km charged at ₹18/km',
+    'Initial waiting time of 10 minutes is free, post which trip timer starts',
+    '10-minute grace period at trip end, post which hourly charges apply',
+    'Night charges of ₹200 applicable between 11 PM to 6 AM',
+    'Additional driver allowance of ₹300 for night trips (11 PM to 6 AM)'
 ];
 
-const multidayTerms = [
-    'Free cancellation up to 24 hours before pickup.',
-    'No refund for cancellations within 24 hours of pickup.',
-    'No refund for early trip completion. Unused days are non-refundable.',
-    'Driver accommodation and food expenses are to be borne by the customer.',
-    'For trip extensions, additional days must be confirmed at least 24 hours in advance.',
+const hourlyTerms = [
+    'Free cancellation within 5 (on-demand) minutes or 1 hour (scheduled rides) before pickup. ₹100 cancellation fee applies thereafter.',
+    'Free rescheduling up to 1 hour prior. ₹100 fee thereafter.',
+    'No refund for early trip completion. Unused time or kilometers are non-refundable.',
+    'Service valid only within city/town limits. Intercity/town or terminal trips have different pricing.',
+    'For trip extensions, partial hours are rounded up to the next half hour.',
     'In case of vehicle breakdown, we\'ll assist with rescheduling or refund for unused duration.'
 ];
 
-const MultidayRentalReview = ({ bookingDetails, userInput }: { bookingDetails: any, userInput: any }) => {
+const HourlyRentalReview = () => {
+    const location = useLocation();
     const navigate = useNavigate();
+    const { bookingDetails, type, userInput } = location.state || {};
 
-    console.log(bookingDetails, userInput);
-
-    if (!bookingDetails) {
+    if (!bookingDetails || !type) {
         navigate('/cab');
         return null;
     }
@@ -73,15 +73,15 @@ const MultidayRentalReview = ({ bookingDetails, userInput }: { bookingDetails: a
                         <div className="flex items-start gap-3">
                             <Calendar className="w-5 h-5 text-gray-500 mt-1" />
                             <div>
-                                <div className="text-sm text-gray-500">Start Date</div>
-                                <div className="font-medium">{userInput.startDate}, {userInput.startTime}</div>
+                                <div className="text-sm text-gray-500">Date</div>
+                                <div className="font-medium">{bookingDetails.pickup_date}</div>
                             </div>
                         </div>
                         <div className="flex items-start gap-3">
-                            <Calendar className="w-5 h-5 text-gray-500 mt-1" />
+                            <Clock className="w-5 h-5 text-gray-500 mt-1" />
                             <div>
-                                <div className="text-sm text-gray-500">End Date</div>
-                                <div className="font-medium">{userInput.endDate}, {userInput.endTime}</div>
+                                <div className="text-sm text-gray-500">Time</div>
+                                <div className="font-medium">{bookingDetails.pickup_time}</div>
                             </div>
                         </div>
                         <div className="flex items-start gap-3">
@@ -127,34 +127,22 @@ const MultidayRentalReview = ({ bookingDetails, userInput }: { bookingDetails: a
                     <h2 className="text-lg font-semibold mb-4">Fare Breakup</h2>
                     <div className="space-y-2">
                         <div className="flex justify-between">
-                            <span>Base fare ({bookingDetails.numberOfDays} days)</span>
-                            <span>{formatPrice(bookingDetails.pricing.base_price * bookingDetails.numberOfDays)}</span>
+                            <span>Base fare</span>
+                            <span>{formatPrice(bookingDetails.pricing?.base_price || 0)}</span>
                         </div>
-                        {bookingDetails.pricing.driver_allowance && (
+                        {bookingDetails.pricing?.driver_allowance && (
                             <div className="flex justify-between">
-                                <span>Driver allowance ({bookingDetails.numberOfNights} nights)</span>
-                                <span>{formatPrice(bookingDetails.pricing.driver_allowance * bookingDetails.numberOfNights)}</span>
-                            </div>
-                        )}
-                        {bookingDetails.pricing.night_driving_fee && (
-                            <div className="flex justify-between">
-                                <span>Night driving fee</span>
-                                <span>{formatPrice(bookingDetails.pricing.night_driving_fee * bookingDetails.numberOfNights)}</span>
-                            </div>
-                        )}
-                        {bookingDetails.pricing.dead_return_cost && (
-                            <div className="flex justify-between">
-                                <span>Dead return cost</span>
-                                <span>{formatPrice(bookingDetails.pricing.dead_return_cost)}</span>
+                                <span>Driver allowance</span>
+                                <span>{formatPrice(bookingDetails.pricing.driver_allowance)}</span>
                             </div>
                         )}
                         <div className="flex justify-between">
                             <span>Taxes & fees</span>
-                            <span>{formatPrice(bookingDetails.pricing.taxes)}</span>
+                            <span>{formatPrice(bookingDetails.pricing?.tax)}</span>
                         </div>
                         <div className="flex justify-between font-semibold border-t pt-2 mt-2">
                             <span>Total fare</span>
-                            <span>{formatPrice(bookingDetails.pricing.final_price)}</span>
+                            <span>{formatPrice(bookingDetails.pricing?.final_price)}</span>
                         </div>
                     </div>
                 </div>
@@ -172,7 +160,7 @@ const MultidayRentalReview = ({ bookingDetails, userInput }: { bookingDetails: a
                 <div className="bg-white rounded-xl p-4 mb-4">
                     <h2 className="text-lg font-semibold mb-4">Pricing Criteria</h2>
                     <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
-                        {multidayPricingCriteria.map((term, index) => (
+                        {hourlyPricingCriteria.map((term, index) => (
                             <li key={index}>{term}</li>
                         ))}
                     </ul>
@@ -182,7 +170,7 @@ const MultidayRentalReview = ({ bookingDetails, userInput }: { bookingDetails: a
                 <div className="bg-white rounded-xl p-4 mb-4">
                     <h2 className="text-lg font-semibold mb-4">Terms & Conditions</h2>
                     <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
-                        {multidayTerms.map((term, index) => (
+                        {hourlyTerms.map((term, index) => (
                             <li key={index}>{term}</li>
                         ))}
                     </ul>
@@ -195,7 +183,7 @@ const MultidayRentalReview = ({ bookingDetails, userInput }: { bookingDetails: a
                         navigate('/cab/confirmation', {
                             state: {
                                 bookingDetails,
-                                type: 'multiday',
+                                type,
                                 userInput,
                             },
                         });
@@ -209,4 +197,4 @@ const MultidayRentalReview = ({ bookingDetails, userInput }: { bookingDetails: a
     );
 };
 
-export default MultidayRentalReview; 
+export default HourlyRentalReview; 

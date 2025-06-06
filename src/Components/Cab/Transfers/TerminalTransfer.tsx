@@ -2,7 +2,7 @@ import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import type { LocationSuggestion, TerminalTransferBooking } from '../../../types/types';
 import { getLocationSuggestions, getTerminalTransferBooking, getTerminalSuggestions } from '../../../services/cab';
-import CabSearchResults from './TransferCabSearchResults';
+// import CabSearchResults from './TransferCabSearchResults';
 import { useNavigate } from 'react-router-dom';
 
 // const terminalTypes = [
@@ -24,7 +24,7 @@ const TerminalTransfer = () => {
         pickup_time: null,
     });
 
-    const [searchResults, setSearchResults] = useState<any>(null);
+    // const [searchResults, setSearchResults] = useState<any>(null);
     const [isSearching, setIsSearching] = useState(false);
     const [searchError, setSearchError] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);

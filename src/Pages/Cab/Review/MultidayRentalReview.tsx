@@ -1,43 +1,33 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, Clock, Users, Car, Info, CheckCircle2 } from 'lucide-react';
-import Navbar from '../../Components/Navbar';
+import Navbar from '../../../Components/Navbar';
 
-const staticTransferPricingCriteria = [
-    'Tolls, parking, permits, and taxes are excluded; to be paid offline.',
-    'Night driving (11 PM – 6 AM): ₹200 night fee + ₹100 driver allowance.',
-    'Detours due to unforeseen events (e.g., roadblocks, traffic jams): ₹200/hour + ₹18/km.',
-    'In case of drop to terminal, 15 minutes of waiting at pickup; ₹50 per additional 15 minutes.',
-    'Change in pickup/drop location (town/village/city) may incur additional charges.'
+const multidayPricingCriteria = [
+    'Additional charges like toll fees, parking charges, permits, and state taxes are payable separately.',
+    'Base fare includes driver and fuel charges for the entire duration.',
+    'Driver allowance is charged per night for overnight stays.',
+    'Night driving fee applies for trips between 11 PM to 6 AM.',
+    'Extra hours beyond the daily limit are charged at ₹500/hour.',
+    'Dead return cost applies for one-way trips.',
+    'Service valid for both intercity and intracity travel.',
+    'For trip extensions, additional days are charged at the same rate.'
 ];
 
-const cityTransferTerms = [
-    'Free cancellation within 5 minutes of booking confirmation.',
-    '₹100 cancellation fee applies after 5 minutes.',
+const multidayTerms = [
+    'Free cancellation up to 24 hours before pickup.',
+    'No refund for cancellations within 24 hours of pickup.',
+    'No refund for early trip completion. Unused days are non-refundable.',
+    'Driver accommodation and food expenses are to be borne by the customer.',
+    'For trip extensions, additional days must be confirmed at least 24 hours in advance.',
+    'In case of vehicle breakdown, we\'ll assist with rescheduling or refund for unused duration.'
 ];
 
-const terminalTransferTerms = [
-    {
-        title: 'Pickup from Terminal',
-        points: [
-            'No cancellations or rescheduling allowed within 24 hours of pickup. Full fare will be charged.',
-            'Free cancellation if done earlier than 24 hours.'
-        ]
-    },
-    {
-        title: 'Drop to Terminal',
-        points: [
-            'Free cancellation within 5 minutes of booking confirmation.',
-            '₹100 cancellation fee applies after 5 minutes.'
-        ]
-    }
-];
-
-const TransferBookingReview = () => {
-    const location = useLocation();
+const MultidayRentalReview = ({ bookingDetails, userInput }: { bookingDetails: any, userInput: any }) => {
     const navigate = useNavigate();
-    const { bookingDetails, type, userInput } = location.state || {};
 
-    if (!bookingDetails || !type) {
+    console.log(bookingDetails, userInput);
+
+    if (!bookingDetails) {
         navigate('/cab');
         return null;
     }
@@ -83,15 +73,15 @@ const TransferBookingReview = () => {
                         <div className="flex items-start gap-3">
                             <Calendar className="w-5 h-5 text-gray-500 mt-1" />
                             <div>
-                                <div className="text-sm text-gray-500">Date</div>
-                                <div className="font-medium">{bookingDetails.pickup_date}</div>
+                                <div className="text-sm text-gray-500">Start Date</div>
+                                <div className="font-medium">{userInput.startDate}, {userInput.startTime}</div>
                             </div>
                         </div>
                         <div className="flex items-start gap-3">
-                            <Clock className="w-5 h-5 text-gray-500 mt-1" />
+                            <Calendar className="w-5 h-5 text-gray-500 mt-1" />
                             <div>
-                                <div className="text-sm text-gray-500">Time</div>
-                                <div className="font-medium">{bookingDetails.pickup_time}</div>
+                                <div className="text-sm text-gray-500">End Date</div>
+                                <div className="font-medium">{userInput.endDate}, {userInput.endTime}</div>
                             </div>
                         </div>
                         <div className="flex items-start gap-3">
@@ -137,16 +127,34 @@ const TransferBookingReview = () => {
                     <h2 className="text-lg font-semibold mb-4">Fare Breakup</h2>
                     <div className="space-y-2">
                         <div className="flex justify-between">
-                            <span>Base fare</span>
-                            <span>{formatPrice(bookingDetails.final_price)}</span>
+                            <span>Base fare ({bookingDetails.numberOfDays} days)</span>
+                            <span>{formatPrice(bookingDetails.pricing.base_price * bookingDetails.numberOfDays)}</span>
                         </div>
+                        {bookingDetails.pricing.driver_allowance && (
+                            <div className="flex justify-between">
+                                <span>Driver allowance ({bookingDetails.numberOfNights} nights)</span>
+                                <span>{formatPrice(bookingDetails.pricing.driver_allowance * bookingDetails.numberOfNights)}</span>
+                            </div>
+                        )}
+                        {bookingDetails.pricing.night_driving_fee && (
+                            <div className="flex justify-between">
+                                <span>Night driving fee</span>
+                                <span>{formatPrice(bookingDetails.pricing.night_driving_fee * bookingDetails.numberOfNights)}</span>
+                            </div>
+                        )}
+                        {bookingDetails.pricing.dead_return_cost && (
+                            <div className="flex justify-between">
+                                <span>Dead return cost</span>
+                                <span>{formatPrice(bookingDetails.pricing.dead_return_cost)}</span>
+                            </div>
+                        )}
                         <div className="flex justify-between">
                             <span>Taxes & fees</span>
-                            <span>{formatPrice(bookingDetails.final_price * 0.05)}</span>
+                            <span>{formatPrice(bookingDetails.pricing.taxes)}</span>
                         </div>
                         <div className="flex justify-between font-semibold border-t pt-2 mt-2">
                             <span>Total fare</span>
-                            <span>{formatPrice(bookingDetails.final_price * 1.05)}</span>
+                            <span>{formatPrice(bookingDetails.pricing.final_price)}</span>
                         </div>
                     </div>
                 </div>
@@ -164,7 +172,7 @@ const TransferBookingReview = () => {
                 <div className="bg-white rounded-xl p-4 mb-4">
                     <h2 className="text-lg font-semibold mb-4">Pricing Criteria</h2>
                     <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
-                        {staticTransferPricingCriteria.map((term, index) => (
+                        {multidayPricingCriteria.map((term, index) => (
                             <li key={index}>{term}</li>
                         ))}
                     </ul>
@@ -174,17 +182,8 @@ const TransferBookingReview = () => {
                 <div className="bg-white rounded-xl p-4 mb-4">
                     <h2 className="text-lg font-semibold mb-4">Terms & Conditions</h2>
                     <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
-                        {type === 'city' ? cityTransferTerms.map((term, index) => (
+                        {multidayTerms.map((term, index) => (
                             <li key={index}>{term}</li>
-                        )) : terminalTransferTerms.map((section, index) => (
-                            <div key={index} className="mb-2">
-                                <div className="text-sm font-semibold">{section.title}</div>
-                                <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600 mt-1">
-                                    {section.points.map((point, idx) => (
-                                        <li key={idx}>{point}</li>
-                                    ))}
-                                </ul>
-                            </div>
                         ))}
                     </ul>
                 </div>
@@ -196,7 +195,7 @@ const TransferBookingReview = () => {
                         navigate('/cab/confirmation', {
                             state: {
                                 bookingDetails,
-                                type,
+                                type: 'multiday',
                                 userInput,
                             },
                         });
@@ -210,4 +209,4 @@ const TransferBookingReview = () => {
     );
 };
 
-export default TransferBookingReview; 
+export default MultidayRentalReview; 

@@ -1,9 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import HourlySearchResults from '../../Components/Cab/HourlyRental/HourlySearchResults';
-import TransferCabSearchResults from '../../Components/Cab/Transfers/TransferCabSearchResults';
-import MultidaySearchResults from '../../Components/Cab/MultidayRental/MultidaySearchResults';
-import Navbar from '../../Components/Navbar';
+import HourlySearchResults from '../../../Components/Cab/HourlyRental/HourlySearchResults';
+import TransferCabSearchResults from '../../../Components/Cab/Transfers/TransferCabSearchResults';
+import MultidaySearchResults from '../../../Components/Cab/MultidayRental/MultidaySearchResults';
+import Navbar from '../../../Components/Navbar';
 
 const CabSearchResults = () => {
     const location = useLocation();
