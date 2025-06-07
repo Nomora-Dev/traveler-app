@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 const TerminalTransfer = () => {
     const [mode, setMode] = useState<'pickup' | 'drop'>('pickup');
     const [formData, setFormData] = useState<TerminalTransferBooking>({
+        service_type: 'terminal',
         terminal_type: 'Airport',
         terminal_name: '',
         district_location_query: '',

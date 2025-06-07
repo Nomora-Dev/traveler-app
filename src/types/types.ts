@@ -19,6 +19,7 @@ export interface TransferBooking {
 }
 
 export interface TerminalTransferBooking {
+    service_type: string;
     terminal_type: string;
     terminal_name: string;
     district_location_query: string;

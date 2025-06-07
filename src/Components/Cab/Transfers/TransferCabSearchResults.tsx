@@ -191,6 +191,7 @@ const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults, user
     };
 
     console.log(getBookingDetails());
+    console.log(userInput);
 
     return (
         <div className="bg-white px-6 flex flex-col mb-12">
