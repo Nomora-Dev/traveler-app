@@ -181,7 +181,6 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
         ) || {};
         if (!supplier || !category) return null;
         const pricing = category.pricing;
-        // const taxes = Math.round(pricing.final_price * 0.05); // Example: 5% tax
         return {
             pickup_location: searchResults.route_info.pickup_location,
             drop_location: searchResults.route_info.drop_location,
@@ -191,15 +190,37 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
             estimated_distance: searchResults.route_info.distance_km,
             estimated_duration: searchResults.route_info.duration,
             car_category: category.name,
+            car_category_id: category.id,
             ac: 'AC',
             car_seater: category.seating_capacity + ' Seater',
             operator: supplier.name,
             numberOfDays: numberOfDays,
             numberOfNights: numberOfNights,
             pricing: pricing,
+            final_price: pricing.final_price,
             vehicle_name: category.vehicle_list?.join(', '),
             vehicle_type: category.name,
             payment_method: 'Pay in Cash',
+            
+            // Additional data needed for API call
+            supplier_id: supplier.id,
+            service_type: 'multiday',
+            is_ac: true,
+            fareDetails: {
+                base_fare: pricing.base_price || 0,
+                price_per_km: pricing.price_per_km || 0,
+                included_kms: pricing.included_kms || 0,
+                total_fare: pricing.final_price || 0,
+                number_of_days: numberOfDays
+            },
+            pricingFramework: {
+                supplier_id: supplier.id,
+                car_category_id: category.id,
+                is_ac: true,
+                start_date: tripDetails.startDate,
+                end_date: tripDetails.endDate,
+                is_round_trip: tripDetails.isRoundTrip
+            },
             pricing_criteria: PRICING_RULES,
             terms: [
                 {
@@ -212,6 +233,9 @@ const MultidaySearchResults: React.FC<MultidaySearchResultsProps> = ({ searchRes
             ],
         };
     };
+
+    console.log(userInput);
+    console.log(getBookingDetails());
 
     return (
         <div className="bg-white px-2 pt-6 pb-8 w-full max-w-md mx-auto font-sans">

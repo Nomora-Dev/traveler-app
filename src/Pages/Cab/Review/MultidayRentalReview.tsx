@@ -1,6 +1,8 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, Clock, Users, Car, Info, CheckCircle2 } from 'lucide-react';
 import Navbar from '../../../Components/Navbar';
+import { createBooking } from '../../../services/cab';
+import { useState } from 'react';
 
 const multidayPricingCriteria = [
     'Additional charges like toll fees, parking charges, permits, and state taxes are payable separately.',
@@ -24,6 +26,7 @@ const multidayTerms = [
 
 const MultidayRentalReview = ({ bookingDetails, userInput }: { bookingDetails: any, userInput: any }) => {
     const navigate = useNavigate();
+    const [isCreatingBooking, setIsCreatingBooking] = useState(false);
 
     console.log(bookingDetails, userInput);
 
@@ -38,6 +41,43 @@ const MultidayRentalReview = ({ bookingDetails, userInput }: { bookingDetails: a
             currency: 'INR',
             maximumFractionDigits: 0
         }).format(price);
+    };
+
+    const handleCreateBooking = async () => {
+        setIsCreatingBooking(true);
+        try {
+            const bookingData = {
+                service_type: bookingDetails.service_type,
+                pickup_location: bookingDetails.pickup_location,
+                drop_location: bookingDetails.drop_location,
+                car_category_id: bookingDetails.car_category_id,
+                pax_count: bookingDetails.pax_count,
+                is_ac: bookingDetails.is_ac,
+                supplier_id: bookingDetails.supplier_id,
+                userInput: {
+                    ...userInput,
+                    pickup_location: { formatted_address: bookingDetails.pickup_location },
+                    drop_location: { formatted_address: bookingDetails.drop_location },
+                    estimated_distance: bookingDetails.estimated_distance,
+                    estimated_duration: bookingDetails.estimated_duration
+                },
+                fareDetails: bookingDetails.fareDetails,
+                pricingFramework: bookingDetails.pricingFramework
+            };
+
+            console.log(bookingData);
+
+            const response = await createBooking(bookingData);
+            const bookingId = response.booking?.id;
+            if (bookingId) {
+                navigate(`/cab/booking/${bookingId}`);
+            }
+        } catch (error) {
+            console.error('Failed to create booking:', error);
+            // Handle error (show toast, etc.)
+        } finally {
+            setIsCreatingBooking(false);
+        }
     };
 
     return (
@@ -190,18 +230,11 @@ const MultidayRentalReview = ({ bookingDetails, userInput }: { bookingDetails: a
 
                 {/* Confirm Booking Button */}
                 <button
-                    className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold text-lg shadow-md hover:bg-indigo-700 transition"
-                    onClick={() => {
-                        navigate('/cab/confirmation', {
-                            state: {
-                                bookingDetails,
-                                type: 'multiday',
-                                userInput,
-                            },
-                        });
-                    }}
+                    className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold text-lg shadow-md hover:bg-indigo-700 transition disabled:opacity-50"
+                    onClick={handleCreateBooking}
+                    disabled={isCreatingBooking}
                 >
-                    Confirm Booking
+                    {isCreatingBooking ? 'Creating Booking...' : 'Confirm Booking'}
                 </button>
             </div>
             <Navbar />

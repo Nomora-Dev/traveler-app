@@ -23,8 +23,6 @@ const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults
     const [breakupIndex, setBreakupIndex] = useState<number | null>(null);
     const navigate = useNavigate();
 
-    console.log(userInput);
-
     // Flatten all categories for filtering
     const allOptions: { supplier: HourlySupplier; category: HourlySupplierCategory }[] = [];
     suppliers.forEach(supplier => {
@@ -55,18 +53,38 @@ const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults
             estimated_distance: route_info.distance_km,
             estimated_duration: route_info.duration,
             car_category: category.name,
-            // ac: category.is_ac ? 'AC' : 'Non AC',
+            car_category_id: category.id,
+            ac: 'AC', // Hourly rentals typically include AC
             car_seater: category.seating_capacity + ' Seater',
             operator: supplier.name,
             base_fare: pricing.base_price,
             pricing: pricing,
+            final_price: pricing.final_price,
             total_fare: pricing.final_price,
-            // vehicle_name: category.vehicle_list?.join(', '),
-            vehicle_type: category.name,
             payment_method: 'Pay in Cash',
+            
+            // Additional data needed for API call
+            supplier_id: supplier.id,
+            service_type: 'hourly',
+            is_ac: true,
+            fareDetails: {
+                base_fare: pricing.base_price || 0,
+                price_per_km: pricing.price_per_km || 0,
+                included_kms: pricing.included_kms || 0,
+                total_fare: pricing.final_price || 0
+            },
+            pricingFramework: {
+                supplier_id: supplier.id,
+                car_category_id: category.id,
+                is_ac: true,
+                rental_duration: userInput?.rental_duration || 0
+            },
             userInput: userInput,
         };
     };
+
+    console.log(userInput);
+    console.log(getBookingDetails());
 
     return (
         <div className="bg-white px-6 flex flex-col mb-12">

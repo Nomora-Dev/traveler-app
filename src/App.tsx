@@ -18,7 +18,6 @@ import Navbar from './Components/Navbar'
 const ReviewBooking = () => {
   const location = useLocation();
   const { bookingDetails, type, userInput } = location.state || {};
-  console.log(type);
   switch (type) {
     case 'city':
     case 'terminal':
