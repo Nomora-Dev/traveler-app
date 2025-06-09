@@ -48,7 +48,7 @@ const BookingDetails: React.FC = () => {
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
                     <p className="text-red-600">{error || 'Booking not found'}</p>
-                    <button 
+                    <button
                         onClick={() => navigate('/cab')}
                         className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg"
                     >
@@ -62,13 +62,16 @@ const BookingDetails: React.FC = () => {
     const { booking, booking_requests, assignment } = bookingData;
     const userInput = booking.userinput || {};
     const acceptedRequest = booking_requests?.find((req: any) => req.status === 'accepted' || req.status === 'confirmed');
-    
+
     // Determine booking state
     const isPending = booking.booking_status === 'pending' || booking.booking_status === 'awaiting_supplier_confirmation';
     const isConfirmed = booking.booking_status === 'confirmed';
-    const timingType = userInput.timing || 'now';
-    const isNowBooking = timingType === 'now';
-    const isScheduledBooking = timingType === 'later';
+    const pickup_time_type = booking.pickup_time_type || 'now';
+    const isNowBooking = pickup_time_type === 'now';
+    const isScheduledBooking = pickup_time_type === 'schedule';
+    const pricing_framework = booking_requests[0].pricing_framework[0] || {};
+
+    console.log(pricing_framework);
 
     // Status steps for booking progress
     const getStatusSteps = () => {
@@ -102,10 +105,10 @@ const BookingDetails: React.FC = () => {
     // Service type display name
     const getServiceDisplayName = (serviceType: string) => {
         switch (serviceType) {
-            case 'city_transfer': return 'Intercity Transfer';
-            case 'terminal_transfer': return 'Terminal Transfer';
-            case 'hourly_rental': return 'Hourly Rental';
-            case 'multiday_rental': return 'Multiday Rental';
+            case 'city': return 'Intercity Transfer';
+            case 'terminal': return 'Terminal Transfer';
+            case 'hourly': return 'Hourly Rental';
+            case 'multiday': return 'Multiday Rental';
             default: return 'Transfer';
         }
     };
@@ -135,9 +138,9 @@ const BookingDetails: React.FC = () => {
                     title: 'Booking Confirmed',
                     subtitle: assignment ? 'Driver Assigned' : 'Scheduled Successfully',
                     message: assignment ? 'Driver will contact you before pickup' : 'Driver will be assigned closer to pickup time',
-                    bgColor: 'bg-green-50',
-                    textColor: 'text-green-800',
-                    iconColor: 'text-green-600'
+                    // bgColor: 'bg-blue-50',
+                    textColor: 'text-blue-800',
+                    iconColor: 'text-blue-600'
                 };
             }
         }
@@ -154,12 +157,73 @@ const BookingDetails: React.FC = () => {
         return null;
     };
 
+    // Pricing framework for fare details by service type
+    const pricingFramework: Record<string, {
+        included: string[],
+        excluded: string[],
+        notes: string[]
+    }> = {
+        city: {
+            included: [
+                'Base fare, fuel, driver services, taxes.',
+                'Driver allowance and night charges (in case of night drive).'
+            ],
+            excluded: [
+                'Tolls, parking, permits, and state taxes'
+            ],
+            notes: [
+                '₹200/hr + ₹18/km for detours',
+                'Additional charges will apply for town/village/city changes'
+            ]
+        },
+        terminal: {
+            included: [
+                'Base fare, fuel, driver services, taxes.'
+            ],
+            excluded: [
+                'Tolls, parking, permits, and state taxes'
+            ],
+            notes: [
+                '₹150/hr + ₹15/km for detours',
+                'Extra charges for airport parking if applicable'
+            ]
+        },
+        hourly: {
+            included: [
+                'Base fare, fuel, driver services, taxes.',
+                'Driver allowance included.'
+            ],
+            excluded: [
+                'Tolls, parking, permits, and state taxes'
+            ],
+            notes: [
+                '10min grace period at trip end; charges apply after',
+                'No refund for unused time/km',
+                'Service valid within city/town limits'
+            ]
+        },
+        multiday: {
+            included: [
+                'Base fare, fuel, driver services, taxes.',
+                'Driver allowance and night charges included.'
+            ],
+            excluded: [
+                'Tolls, parking, permits, and state taxes',
+                'Hotel accommodation for driver (if required)'
+            ],
+            notes: [
+                'Extra km and day charges as per policy',
+                'Additional charges for inter-state travel'
+            ]
+        }
+    };
+
     return (
         <div className="max-w-md mx-auto bg-white min-h-screen">
             {/* Header */}
             <div className="p-4 border-b">
                 <div className="flex items-center gap-4">
-                    <button 
+                    <button
                         onClick={() => navigate('/cab')}
                         className="text-gray-600"
                     >
@@ -169,7 +233,7 @@ const BookingDetails: React.FC = () => {
                     <div className="ml-auto">
                         <button className="text-gray-600">
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
                             </svg>
                         </button>
                     </div>
@@ -211,17 +275,17 @@ const BookingDetails: React.FC = () => {
                                 <span>Scheduled for {userInput.pickup_date} at {userInput.pickup_time}</span>
                             )}
                         </div>
-                        <span className={`text-xs ${timingType === 'now' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'} font-semibold px-2 py-1 rounded-xl`}>
-                            {timingType === 'now' ? 'On-demand' : 'Scheduled'}
+                        <span className={`text-xs ${pickup_time_type === 'now' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'} font-semibold px-2 py-1 rounded-xl`}>
+                            {pickup_time_type === 'now' ? 'On-demand' : 'Scheduled'}
                         </span>
                     </div>
-                    
+
                     {getEstimatedWaitTime() && (
                         <div className="text-sm text-gray-600 mb-2">
                             Estimated {isPending ? 'confirmation' : 'wait'} time <span className="font-medium text-gray-900">{getEstimatedWaitTime()}</span>
                         </div>
                     )}
-                    
+
                     {/* Progress Steps */}
                     <div className="flex items-center justify-between mt-4 relative">
                         {statusSteps.map((step, idx) => {
@@ -253,7 +317,7 @@ const BookingDetails: React.FC = () => {
                             );
                         })}
                     </div>
-                    
+
                     {isPending && (
                         <p className="text-xs flex gap-2 items-start text-gray-500 mt-4">
                             <Bell className={`w-4 h-4 ${headerContent.iconColor} flex-shrink-0`} />
@@ -262,7 +326,52 @@ const BookingDetails: React.FC = () => {
                     )}
                 </div>
 
-                {/* Driver Details Card - Only for confirmed bookings */}
+                {/* Trip Details - Redesigned as per screenshot */}
+                <div className="rounded-xl border p-4">
+                    <div className="flex items-start gap-4">
+                        {/* Left: Dots and line */}
+                        <div className="flex flex-col items-center pt-1">
+                            <span className="w-3 h-3 rounded-full bg-purple-600 block"></span>
+                            <span className="w-0.5 h-8 bg-gray-300 my-1"></span>
+                            <span className="w-3 h-3 rounded-full bg-green-600 block"></span>
+                        </div>
+                        {/* Right: Locations and date/time */}
+                        <div className="flex-1">
+                            {/* Pickup */}
+                            <div>
+                                <div className="text-xs text-gray-500">Pickup</div>
+                                <div className="font-medium text-gray-800 text-sm">{booking.pickup_location}</div>
+                                {isScheduledBooking && userInput.pickup_date && userInput.pickup_time && (
+                                    <div className="inline-block mt-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 text-xs rounded-full font-medium">
+                                        {userInput.pickup_date} • {userInput.pickup_time}
+                                    </div>
+                                )}
+                            </div>
+                            {/* Drop */}
+                            <div className="mt-6">
+                                <div className="text-xs text-gray-500">Drop</div>
+                                <div className="font-medium text-gray-800 text-sm">{booking.drop_location}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Est time and distance below, side by side */}
+                    <div className="flex gap-4 mt-6">
+                        {userInput.estimated_duration && (
+                            <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
+                                <Clock className="w-4 h-4 text-gray-500" />
+                                <span className="text-xs text-gray-700">{userInput.estimated_duration} mins</span>
+                            </div>
+                        )}
+                        {userInput.estimated_distance && (
+                            <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
+                                <MapPin className="w-4 h-4 text-gray-500" />
+                                <span className="text-xs text-gray-700">{userInput.estimated_distance} km</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Driver Details Card - Only for confirmed bookings, after trip details */}
                 {isConfirmed && (
                     <>
                         {assignment && (isNowBooking || (isScheduledBooking && assignment.driver_name)) ? (
@@ -284,7 +393,6 @@ const BookingDetails: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-
                                 <div className="space-y-2 mb-4">
                                     <div className="text-sm">
                                         <span className="text-gray-500">Vehicle</span>
@@ -302,7 +410,6 @@ const BookingDetails: React.FC = () => {
                                         {booking.car_category_name || 'SUV'} • {booking.is_ac ? 'AC' : 'Non-AC'} • {booking.pax_count} Seater
                                     </div>
                                 </div>
-
                                 {isNowBooking && (
                                     <button className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2">
                                         <Phone className="w-4 h-4" />
@@ -329,12 +436,80 @@ const BookingDetails: React.FC = () => {
                     </>
                 )}
 
-                {/* Service Type and Route */}
+                {/* Package Fare Card - styled as per screenshot, above Fare Details */}
+                {isConfirmed && (
+                    <>
+                        <hr className="my-4" />
+                        <div className="rounded-xl border p-4 bg-white mb-2">
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-base font-medium text-gray-700">Package Fare</span>
+                                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Cash Only</span>
+                            </div>
+                            <div className="text-2xl font-bold text-gray-900 mb-1">
+                                ₹{(booking_requests && booking_requests[0]?.faredetails?.total_fare) ? booking_requests[0].faredetails.total_fare : (booking.total_price || '--')}
+                            </div>
+                            <div className="text-xs text-gray-600 flex items-center gap-1">
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/><path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                Pay directly to driver after ride completion
+                            </div>
+                        </div>
+                        <hr className="my-4" />
+                    </>
+                )}
+
+                {/* Fare Details Card - always for confirmed bookings, below driver */}
+                {isConfirmed && (
+                    <div className="rounded-xl border p-4 bg-white">
+                        <h3 className="text-base font-semibold mb-3 text-gray-900">
+                            Package Fare
+                        </h3>
+                        ₹ {booking_requests[0].faredetails.total_fare}
+                        <h3 className="text-base font-semibold mb-3 text-gray-900">Fare Details</h3>
+                        {/* Included */}
+                        <div className="mb-2">
+                            <div className="font-bold text-sm mb-1">Included:</div>
+                            <ul className="text-xs text-gray-700 list-disc pl-4">
+                                {(pricingFramework[booking.service_type]?.included || []).map((item, idx) => (
+                                    <li key={idx}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                        {/* Excluded */}
+                        <div className="mb-2">
+                            <div className="font-bold text-sm mb-1">Excluded (Offline):</div>
+                            <ul className="text-xs text-gray-700 list-disc pl-4">
+                                {(pricingFramework[booking.service_type]?.excluded || []).map((item, idx) => (
+                                    <li key={idx}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                        <hr className="my-3" />
+                        {/* Notes */}
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-xs text-blue-700">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /><path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                ₹{pricing_framework.base_hourly}/hr for extra time (billed per 30 mins)
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-blue-700">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /><path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                ₹{pricing_framework.extra_km_charge}/km beyond {pricing_framework.included_kms} km
+                            </div>
+                            {pricingFramework[booking.service_type]?.notes && pricingFramework[booking.service_type]?.notes?.map((note, idx) => (
+                                <div key={idx} className="flex items-center gap-2 text-xs text-blue-700">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /><path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                    {note}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Service Type and Route (keep after fare details) */}
                 <div className="rounded-xl border p-4">
                     <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">{getServiceDisplayName(booking.service_type)}</span>
-                        <span className={`text-xs ${timingType === 'now' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'} font-semibold px-2 py-1 rounded-xl`}>
-                            {timingType === 'now' ? 'On-demand' : 'Scheduled'}
+                        <span className={`text-xs ${pickup_time_type === 'now' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'} font-semibold px-2 py-1 rounded-xl`}>
+                            {pickup_time_type === 'now' ? 'On-demand' : 'Scheduled'}
                         </span>
                     </div>
                     <div className="text-base font-semibold text-gray-800 mb-1">
@@ -345,111 +520,6 @@ const BookingDetails: React.FC = () => {
                         {booking.car_category_name || 'SUV'} • {booking.pax_count} Seater • {booking.is_ac ? 'AC' : 'Non-AC'}
                     </div>
                 </div>
-
-                {/* Trip Details */}
-                <div className="rounded-xl border p-4">
-                    <h3 className="text-sm font-semibold mb-3 text-gray-800">Trip Details</h3>
-                    
-                    <div className="space-y-3">
-                        <div className="flex items-start gap-3">
-                            <MapPin className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                            <div>
-                                <div className="text-xs text-gray-500">Pickup Location</div>
-                                <div className="font-medium text-gray-800 text-sm">{booking.pickup_location}</div>
-                            </div>
-                        </div>
-                        
-                        <div className="flex items-start gap-3">
-                            <LocateIcon className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                            <div>
-                                <div className="text-xs text-gray-500">Drop Location</div>
-                                <div className="font-medium text-gray-800 text-sm">{booking.drop_location}</div>
-                            </div>
-                        </div>
-
-                        {/* Show pickup date/time for scheduled bookings */}
-                        {isScheduledBooking && userInput.pickup_date && userInput.pickup_time && (
-                            <div className="flex items-start gap-3">
-                                <Clock className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <div className="text-xs text-gray-500">Pickup Date & Time</div>
-                                    <div className="font-medium text-gray-800 text-sm">
-                                        {userInput.pickup_date} at {userInput.pickup_time}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {userInput.estimated_duration && (
-                            <div className="flex items-start gap-3">
-                                <Clock className="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <div className="text-xs text-gray-500">Estimated Trip Duration</div>
-                                    <div className="font-medium text-gray-800 text-sm">{userInput.estimated_duration}</div>
-                                </div>
-                            </div>
-                        )}
-
-                        {userInput.estimated_distance && (
-                            <div className="flex items-start gap-3">
-                                <MapPin className="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <div className="text-xs text-gray-500">Trip Distance</div>
-                                    <div className="font-medium text-gray-800 text-sm">{userInput.estimated_distance}</div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Fare Details - Only for confirmed bookings */}
-                {isConfirmed && booking.total_price && (
-                    <div className="rounded-xl border p-4">
-                        <h3 className="text-sm font-semibold mb-3 text-gray-800">Fare Details</h3>
-                        
-                        <div className="flex justify-between items-center mb-4">
-                            <span className="text-lg font-bold text-gray-900">Total Fare</span>
-                            <div className="text-right">
-                                <div className="text-lg font-bold text-gray-900">₹{booking.total_price}</div>
-                                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Cash Only</span>
-                            </div>
-                        </div>
-
-                        <div className="text-xs text-gray-600 flex items-center gap-1 mb-2">
-                            <Clock className="w-3 h-3" />
-                            Pay directly to driver after ride completion
-                        </div>
-
-                        {acceptedRequest?.fareDetails && (
-                            <div className="mt-3 pt-3 border-t">
-                                <div className="text-sm font-medium mb-2">Included:</div>
-                                <p className="text-xs text-gray-600">
-                                    Base fare, fuel, driver services, taxes. Driver allowance and night charges (in case of night drive).
-                                </p>
-                                
-                                <div className="text-sm font-medium mb-2 mt-3">Excluded (Offline):</div>
-                                <p className="text-xs text-gray-600">
-                                    Tolls, parking, permits, and state taxes
-                                </p>
-                                
-                                <div className="mt-3 space-y-1">
-                                    <div className="flex items-center gap-2 text-xs text-blue-600">
-                                        <div className="w-4 h-4 rounded-full border border-blue-600 flex items-center justify-center">
-                                            <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
-                                        </div>
-                                        ₹200/hr + ₹18/km for detours
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs text-blue-600">
-                                        <div className="w-4 h-4 rounded-full border border-blue-600 flex items-center justify-center">
-                                            <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
-                                        </div>
-                                        Additional charges will apply for town/village/city changes
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
 
                 {/* WhatsApp Updates - Only for pending bookings */}
                 {isPending && (
@@ -481,10 +551,10 @@ const BookingDetails: React.FC = () => {
                     <div className="flex justify-between items-center mb-2">
                         <span className="text-gray-500">Booking Date</span>
                         <span className="font-medium text-gray-800">
-                            {new Date(booking.created_at).toLocaleDateString('en-GB', { 
-                                day: 'numeric', 
-                                month: 'short', 
-                                year: 'numeric' 
+                            {new Date(booking.created_at).toLocaleDateString('en-GB', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
                             })}
                         </span>
                     </div>

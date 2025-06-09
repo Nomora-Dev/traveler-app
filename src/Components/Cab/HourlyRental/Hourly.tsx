@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Calendar, Clock, MapPin, Users, Plus } from 'lucide-react';
 import CabSearchTab from '../CabSearchTab';
 import { getLocationSuggestions, getHourlyTransferBooking } from '../../../services/cab';
@@ -12,7 +12,7 @@ const popularDestinations = ['Mall Road', 'City Center', 'Railway Station', 'Air
 
 interface HourlyFormData {
     hours: number;
-    when: string;
+    pickup_time_type: string;
     date: string | null;
     time: string | null;
     pickup_location: string;
@@ -26,7 +26,7 @@ interface HourlyFormData {
 const Hourly: React.FC = () => {
     const [formData, setFormData] = useState<HourlyFormData>({
         hours: 4,
-        when: 'now',
+        pickup_time_type: 'now',
         date: '',
         time: '',
         pickup_location: '',
@@ -47,36 +47,51 @@ const Hourly: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const handlePickupChange = async (value: string) => {
+    const pickupRequestId = useRef(0);
+    const dropRequestId = useRef(0);
+
+    const handlePickupChange = (value: string) => {
         setFormData(prev => ({ ...prev, pickup_location: value }));
         setPickupError(null);
         if (!value) {
             setPickupSuggestions([]);
             return;
         }
-        const res = await getLocationSuggestions(value);
-        if (!res.success) {
-            setPickupError(res.message || 'No locations found');
-            setPickupSuggestions([]);
-        } else {
-            setPickupSuggestions(res.data);
-        }
+        pickupRequestId.current += 1;
+        const currentId = pickupRequestId.current;
+        setTimeout(async () => {
+            if (currentId !== pickupRequestId.current) return;
+            const res = await getLocationSuggestions(value);
+            if (currentId !== pickupRequestId.current) return;
+            if (!res.success) {
+                setPickupError(res.message || 'No locations found');
+                setPickupSuggestions([]);
+            } else {
+                setPickupSuggestions(res.data);
+            }
+        }, 300);
     };
 
-    const handleDropChange = async (value: string) => {
+    const handleDropChange = (value: string) => {
         setFormData(prev => ({ ...prev, drop_location: value }));
         setDropError(null);
         if (!value) {
             setDropSuggestions([]);
             return;
         }
-        const res = await getLocationSuggestions(value);
-        if (!res.success) {
-            setDropError(res.message || 'No locations found');
-            setDropSuggestions([]);
-        } else {
-            setDropSuggestions(res.data);
-        }
+        dropRequestId.current += 1;
+        const currentId = dropRequestId.current;
+        setTimeout(async () => {
+            if (currentId !== dropRequestId.current) return;
+            const res = await getLocationSuggestions(value);
+            if (currentId !== dropRequestId.current) return;
+            if (!res.success) {
+                setDropError(res.message || 'No locations found');
+                setDropSuggestions([]);
+            } else {
+                setDropSuggestions(res.data);
+            }
+        }, 300);
     };
 
     const handlePickupSuggestion = (suggestion: LocationSuggestion['data'][0]) => {
@@ -155,13 +170,13 @@ const Hourly: React.FC = () => {
                 </label>
                 <div className="flex items-center gap-8 mb-3">
                     <label className="flex items-center gap-1 text-text-gray text-sm font-sans">
-                        <input type="radio" checked={formData.when === 'now'} onChange={() => setFormData(prev => ({ ...prev, when: 'now' }))} className="accent-hero-green" /> Now
+                        <input type="radio" checked={formData.pickup_time_type === 'now'} onChange={() => setFormData(prev => ({ ...prev, pickup_time_type: 'now' }))} className="accent-hero-green" /> Now
                     </label>
                     <label className="flex items-center gap-1 text-text-gray text-sm font-sans">
-                        <input type="radio" checked={formData.when === 'later'} onChange={() => setFormData(prev => ({ ...prev, when: 'later' }))} className="accent-hero-green" /> Later
+                        <input type="radio" checked={formData.pickup_time_type === 'schedule'} onChange={() => setFormData(prev => ({ ...prev, pickup_time_type: 'schedule' }))} className="accent-hero-green" /> Schedule
                     </label>
                 </div>
-                {formData.when === 'later' && (
+                {formData.pickup_time_type === 'schedule' && (
                     <div className="flex gap-4">
                         <div className="relative flex-1">
                             <input

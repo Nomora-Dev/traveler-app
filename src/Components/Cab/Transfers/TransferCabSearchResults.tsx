@@ -176,6 +176,8 @@ const CabSearchResults: React.FC<CabSearchResultsProps> = ({ searchResults, user
             // Additional data needed for API call
             supplier_id: option.supplier_id,
             service_type: userInput.service_type,
+            pickup_time_type: userInput.pickup_time_type,
+            
             is_ac: option.is_ac === 'true',
             fareDetails: {
                 base_fare: option.base_fare || Math.round(option.calculated_final_price - (option.taxes || 0)),

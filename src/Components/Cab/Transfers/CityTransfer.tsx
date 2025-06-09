@@ -14,7 +14,6 @@ const CityTransfer = () => {
     pickup_location_query: '',
     drop_location_query: '',
     pax_count: 2,
-    is_ac_preference: false,
     pickup_time_type: 'now',
     pickup_date: null,
     pickup_time: null,

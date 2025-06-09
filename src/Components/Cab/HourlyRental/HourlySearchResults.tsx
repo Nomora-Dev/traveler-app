@@ -66,6 +66,7 @@ const HourlySearchResults: React.FC<HourlySearchResultsProps> = ({ searchResults
             // Additional data needed for API call
             supplier_id: supplier.id,
             service_type: 'hourly',
+            pickup_time_type: userInput.pickup_time_type,
             is_ac: true,
             fareDetails: {
                 base_fare: pricing.base_price || 0,

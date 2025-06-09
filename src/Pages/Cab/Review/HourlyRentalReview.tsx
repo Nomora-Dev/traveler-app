@@ -48,6 +48,7 @@ const HourlyRentalReview = () => {
         try {
             const bookingData = {
                 service_type: bookingDetails.service_type,
+                pickup_time_type: bookingDetails.pickup_time_type,
                 pickup_location: bookingDetails.pickup_location,
                 drop_location: bookingDetails.drop_location,
                 car_category_id: bookingDetails.car_category_id,

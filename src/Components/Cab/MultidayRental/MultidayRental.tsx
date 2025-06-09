@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, Clock, Users, Plus, X } from 'lucide-react';
 import { getMultidayTransferBooking, getLocationSuggestions } from '../../../services/cab';
 import type { MultidaySearchResponse, LocationSuggestion } from '../../../types/types';
@@ -43,12 +43,17 @@ const MultidayRental = () => {
     const [pickupSuggestions, setPickupSuggestions] = useState<LocationSuggestion['data']>([]);
     const [dropSuggestions, setDropSuggestions] = useState<LocationSuggestion['data']>([]);
     const navigate = useNavigate();
+    const pickupRequestId = useRef(0);
+    const dropRequestId = useRef(0);
 
     // Fetch location suggestions when pickup location changes
     useEffect(() => {
+        pickupRequestId.current += 1;
+        const currentId = pickupRequestId.current;
         const fetchPickupSuggestions = async () => {
             if (formData.pickup_location.length > 2) {
                 const response = await getLocationSuggestions(formData.pickup_location);
+                if (currentId !== pickupRequestId.current) return;
                 if (response.success) {
                     setPickupSuggestions(response.data);
                 }
@@ -56,16 +61,18 @@ const MultidayRental = () => {
                 setPickupSuggestions([]);
             }
         };
-
         const timeoutId = setTimeout(fetchPickupSuggestions, 300);
         return () => clearTimeout(timeoutId);
     }, [formData.pickup_location]);
 
     // Fetch location suggestions when drop location changes
     useEffect(() => {
+        dropRequestId.current += 1;
+        const currentId = dropRequestId.current;
         const fetchDropSuggestions = async () => {
             if (formData.drop_location.length > 2) {
                 const response = await getLocationSuggestions(formData.drop_location);
+                if (currentId !== dropRequestId.current) return;
                 if (response.success) {
                     setDropSuggestions(response.data);
                 }
@@ -73,7 +80,6 @@ const MultidayRental = () => {
                 setDropSuggestions([]);
             }
         };
-
         const timeoutId = setTimeout(fetchDropSuggestions, 300);
         return () => clearTimeout(timeoutId);
     }, [formData.drop_location]);
