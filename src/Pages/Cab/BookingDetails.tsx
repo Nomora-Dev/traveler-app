@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MapPin, Users, Clock, Star, Car, Phone, ArrowLeft, Bell, LocateIcon } from 'lucide-react';
+import { MapPin, Clock, Star, Car, Phone, ArrowLeft, Bell } from 'lucide-react';
 import { getBookingDetails } from '../../services/cab';
+import { BookingSummaryCard } from '../Account';
 
 const BookingDetails: React.FC = () => {
     const { bookingId } = useParams<{ bookingId: string }>();
@@ -217,6 +218,14 @@ const BookingDetails: React.FC = () => {
             ]
         }
     };
+
+    if (['completed', 'expired', 'cancelled'].includes(booking.booking_status)) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <BookingSummaryCard bookingObj={bookingData} />
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-md mx-auto bg-white min-h-screen">

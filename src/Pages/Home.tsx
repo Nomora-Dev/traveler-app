@@ -1,5 +1,5 @@
 import { Plane, Car, Clock, Calendar, MapPin } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getUserBookings } from '../services/cab';
 import ActiveBookingCard from '../Components/Cab/ActiveBookingCard';
 
@@ -38,7 +38,9 @@ const Home = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       setLoading(true);
-      const res = await getUserBookings();
+      const res = await getUserBookings({
+        active_only: true
+      });
       if (res && res.bookings) setBookings(res.bookings);
       setLoading(false);
     };
@@ -58,7 +60,7 @@ const Home = () => {
       <div className="grid grid-cols-2 sm:grid-cols-2 gap-6 max-w-2xl mx-auto mb-10">
         {services.map((service, idx) => (
           <div
-            key={service.title}
+            key={idx}
             className="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center text-center transition hover:shadow-lg"
           >
             <div className="mb-4">{service.icon}</div>

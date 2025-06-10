@@ -1,5 +1,5 @@
 import React from 'react';
-import { Car, Calendar, MapPin, Clock } from 'lucide-react';
+import { Car, Calendar, Clock } from 'lucide-react';
 
 interface ActiveBookingCardProps {
     bookingObject: any;

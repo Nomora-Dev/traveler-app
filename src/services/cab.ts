@@ -140,9 +140,10 @@ export const getBookingDetails = async (bookingId: string) => {
     }
 };
 
-export const getUserBookings = async () => {
+export const getUserBookings = async (params: any) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/bookings/user`, {
+            params: params,
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
