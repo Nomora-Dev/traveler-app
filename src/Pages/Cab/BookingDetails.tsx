@@ -270,14 +270,18 @@ const BookingDetails: React.FC = () => {
 
                     <div className="flex items-center justify-between mb-2">
                         <div className={`text-sm font-semibold ${headerContent.textColor} flex items-center gap-2`}>
-                            <Clock className="w-4 h-4" />
                             {isScheduledBooking && userInput.pickup_date && userInput.pickup_time && (
-                                <span>Scheduled for {userInput.pickup_date} at {userInput.pickup_time}</span>
+                                <>
+                                    <Clock className="w-4 h-4" />
+                                    <span>Scheduled for {userInput.pickup_date} at {userInput.pickup_time}</span>
+                                </>
                             )}
                         </div>
-                        <span className={`text-xs ${pickup_time_type === 'now' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'} font-semibold px-2 py-1 rounded-xl`}>
-                            {pickup_time_type === 'now' ? 'On-demand' : 'Scheduled'}
-                        </span>
+                        {!isConfirmed && (
+                            <span className={`text-xs ${pickup_time_type === 'now' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'} font-semibold px-2 py-1 rounded-xl`}>
+                                {pickup_time_type === 'now' ? 'On-demand' : 'Scheduled'}
+                            </span>
+                        )}
                     </div>
 
                     {getEstimatedWaitTime() && (
@@ -287,36 +291,38 @@ const BookingDetails: React.FC = () => {
                     )}
 
                     {/* Progress Steps */}
-                    <div className="flex items-center justify-between mt-4 relative">
-                        {statusSteps.map((step, idx) => {
-                            const isCompleted = idx < currentStatusIndex;
-                            const isCurrent = idx === currentStatusIndex;
-                            const circleClass = isCompleted
-                                ? `bg-indigo-600 border-indigo-600 text-white`
-                                : isCurrent
-                                    ? `bg-indigo-500 border-indigo-500 text-white`
-                                    : 'bg-gray-200 border-gray-300 text-gray-400';
-                            return (
-                                <React.Fragment key={step.key}>
-                                    <div className="flex flex-col items-center flex-1 relative">
-                                        <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${circleClass} z-20`}>
-                                            {isCompleted ? (
-                                                <span className="text-lg">✓</span>
-                                            ) : (
-                                                <span className="w-2 h-2 rounded-full bg-current block"></span>
+                    {!assignment && (
+                        <div className="flex items-center justify-between mt-4 relative">
+                            {statusSteps.map((step, idx) => {
+                                const isCompleted = idx < currentStatusIndex;
+                                const isCurrent = idx === currentStatusIndex;
+                                const circleClass = isCompleted
+                                    ? `bg-indigo-600 border-indigo-600 text-white`
+                                    : isCurrent
+                                        ? `bg-indigo-500 border-indigo-500 text-white`
+                                        : 'bg-gray-200 border-gray-300 text-gray-400';
+                                return (
+                                    <React.Fragment key={step.key}>
+                                        <div className="flex flex-col items-center flex-1 relative">
+                                            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${circleClass} z-20`}>
+                                                {isCompleted ? (
+                                                    <span className="text-lg">✓</span>
+                                                ) : (
+                                                    <span className="w-2 h-2 rounded-full bg-current block"></span>
+                                                )}
+                                            </div>
+                                            <span className={`text-xs mt-1 ${isCompleted || isCurrent ? `text-indigo-600 font-medium` : 'text-gray-400'}`}>
+                                                {step.label}
+                                            </span>
+                                            {idx < statusSteps.length - 1 && (
+                                                <div className={`absolute top-4 left-1/2 w-full h-0.5 bg-indigo-500 z-10`} />
                                             )}
                                         </div>
-                                        <span className={`text-xs mt-1 ${isCompleted || isCurrent ? `text-indigo-600 font-medium` : 'text-gray-400'}`}>
-                                            {step.label}
-                                        </span>
-                                        {idx < statusSteps.length - 1 && (
-                                            <div className={`absolute top-4 left-1/2 w-full h-0.5 bg-indigo-500 z-10`} />
-                                        )}
-                                    </div>
-                                </React.Fragment>
-                            );
-                        })}
-                    </div>
+                                    </React.Fragment>
+                                );
+                            })}
+                        </div>
+                    )}
 
                     {isPending && (
                         <p className="text-xs flex gap-2 items-start text-gray-500 mt-4">
@@ -449,7 +455,7 @@ const BookingDetails: React.FC = () => {
                                 ₹{(booking_requests && booking_requests[0]?.faredetails?.total_fare) ? booking_requests[0].faredetails.total_fare : (booking.total_price || '--')}
                             </div>
                             <div className="text-xs text-gray-600 flex items-center gap-1">
-                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/><path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /><path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                                 Pay directly to driver after ride completion
                             </div>
                         </div>

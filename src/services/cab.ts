@@ -139,3 +139,21 @@ export const getBookingDetails = async (bookingId: string) => {
         throw error;
     }
 };
+
+export const getUserBookings = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/bookings/user`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user bookings:', error);
+        return {
+            success: false,
+            message: 'Failed to fetch user bookings. Please try again.',
+            data: []
+        };
+    }
+};

@@ -1,4 +1,7 @@
 import { Plane, Car, Clock, Calendar, MapPin } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { getUserBookings } from '../services/cab';
+import ActiveBookingCard from '../Components/Cab/ActiveBookingCard';
 
 const services = [
   {
@@ -28,7 +31,20 @@ const services = [
   },
 ];
 
-const Services = () => {
+const Home = () => {
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      setLoading(true);
+      const res = await getUserBookings();
+      if (res && res.bookings) setBookings(res.bookings);
+      setLoading(false);
+    };
+    fetchBookings();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white px-4 py-2">
       {/* Header */}
@@ -39,7 +55,7 @@ const Services = () => {
       {/* Title */}
       <h2 className="text-heading-black text-2xl font-semibold mb-6">Our Services</h2>
       {/* Services Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+      <div className="grid grid-cols-2 sm:grid-cols-2 gap-6 max-w-2xl mx-auto mb-10">
         {services.map((service, idx) => (
           <div
             key={service.title}
@@ -51,8 +67,21 @@ const Services = () => {
           </div>
         ))}
       </div>
+      {/* Active Bookings Section */}
+      <div className='mb-16'>
+      <h2 className="text-heading-black text-2xl font-semibold mb-4">Active Bookings</h2>
+      {loading ? (
+        <div className="text-center text-gray-400">Loading...</div>
+      ) : bookings.length === 0 ? (
+        <div className="text-center text-gray-400">No active bookings found.</div>
+      ) : (
+        bookings.map((booking, idx) => (
+          <ActiveBookingCard key={booking.id || idx} bookingObject={booking} />
+        ))
+      )}
+      </div>
     </div>
   );
 };
 
-export default Services; 
+export default Home; 
