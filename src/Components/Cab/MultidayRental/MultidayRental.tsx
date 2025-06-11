@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Calendar, Clock, Users, Plus, X } from 'lucide-react';
 import { getMultidayTransferBooking, getLocationSuggestions } from '../../../services/cab';
-import type { MultidaySearchResponse, LocationSuggestion } from '../../../types/types';
-import MultidaySearchResults from './MultidaySearchResults';
+import type { LocationSuggestion } from '../../../types/types';
 import CabSearchTab from '../CabSearchTab';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,7 +36,6 @@ const MultidayRental = () => {
         newStop: '',
     });
 
-    const [searchResults, setSearchResults] = useState<MultidaySearchResponse['data'] | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [pickupSuggestions, setPickupSuggestions] = useState<LocationSuggestion['data']>([]);

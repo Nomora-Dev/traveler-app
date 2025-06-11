@@ -1,5 +1,4 @@
 import BookingConfirmationShared from '../../../Components/Cab/BookingConfirmationShared';
-import { useLocation } from 'react-router-dom';
 
 const CityBookingConfirmation = (state: any) => {
     const { bookingDetails, type, userInput } = state.state;

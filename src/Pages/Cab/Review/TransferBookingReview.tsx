@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Calendar, Clock, Users, Car, Info, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Users, Car, Info, CheckCircle2 } from 'lucide-react';
 import Navbar from '../../../Components/Navbar';
 import { createBooking } from '../../../services/cab';
 import { useState } from 'react';

@@ -2,8 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Calendar, Clock, MapPin, Users, Plus } from 'lucide-react';
 import CabSearchTab from '../CabSearchTab';
 import { getLocationSuggestions, getHourlyTransferBooking } from '../../../services/cab';
-import type { LocationSuggestion, HourlySearchResponse } from '../../../types/types';
-import HourlySearchResults from './HourlySearchResults';
+import type { LocationSuggestion } from '../../../types/types';
 import { useNavigate } from 'react-router-dom';
 
 const hourOptions = [4, 6, 8, 12];
@@ -43,7 +42,6 @@ const Hourly: React.FC = () => {
     const [dropError, setDropError] = useState<string | null>(null);
     const [isSearching, setIsSearching] = useState(false);
     const [searchError, setSearchError] = useState<string | null>(null);
-    const [searchResults, setSearchResults] = useState<HourlySearchResponse['data'] | null>(null);
 
     const navigate = useNavigate();
 
