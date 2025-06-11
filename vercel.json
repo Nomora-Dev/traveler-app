@@ -1,0 +1,13 @@
+{
+    "redirects": [
+      { "source": "/resume", "destination": "/Abir_Thakur_Fullstack_Developer.pdf", "permanent": true },
+      { "source": "/github", "destination": "https://github.com/Inferno2211", "permanent": true },
+      { "source": "/linkedin", "destination": "https://linkedin.com/in/Inferno2211", "permanent": true },
+      { "source": "/leetcode", "destination": "https://leetcode.com/Inferno2211", "permanent": true },
+      { "source": "/codeforces", "destination": "https://codeforces.com/profile/Inferno2211", "permanent": true },
+      { "source": "/codechef", "destination": "https://www.codechef.com/users/Inferno2211", "permanent": true }
+    ],
+    "rewrites": [
+      { "source": "/(.*)", "destination": "/index.html" }
+    ]
+} 
