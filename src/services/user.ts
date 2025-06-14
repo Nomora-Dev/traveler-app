@@ -50,12 +50,12 @@ export const checkTokenValidity = async (): Promise<any> => {
         const token = localStorage.getItem('token');
         if (!token) return false;
         
-        const response = await axios.get(`${API_BASE_URL}/users/me`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        return response;
+        // const response = await axios.get(`${API_BASE_URL}/users/me`, {
+        //     headers: {
+        //         Authorization: `Bearer ${token}`
+        //     }
+        // });
+        // return response;
     } catch (error) {
         console.error('Error checking token validity:', error);
         return false;

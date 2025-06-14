@@ -27,6 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const validateInitialToken = async () => {
             const storedToken = localStorage.getItem('token');
+            console.log(storedToken);
             if (storedToken) {
                 const isValid = await checkTokenValidity();
                 if (!isValid) {
