@@ -43,4 +43,21 @@ export const verifyOtp = async (mobile_number: string, otp: string): Promise<Ver
         // Handle error appropriately in your components
         throw error; // Re-throw or return a specific error structure
     }
+};
+
+export const checkTokenValidity = async (): Promise<any> => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) return false;
+        
+        const response = await axios.get(`${API_BASE_URL}/users/me`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response;
+    } catch (error) {
+        console.error('Error checking token validity:', error);
+        return false;
+    }
 }; 

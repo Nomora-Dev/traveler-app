@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { getUserBookings } from '../services/cab';
-import { Calendar, MapPin, Car, XCircle, CheckCircle, User } from 'lucide-react';
+import { Calendar, MapPin, Car, XCircle, CheckCircle, User, Menu, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 // BookingCard component for each booking
 const BookingCard = ({ bookingObj, onViewDetails }: { bookingObj: any, onViewDetails: () => void }) => {
@@ -170,7 +171,9 @@ const Account = () => {
     const [bookings, setBookings] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedBooking, setSelectedBooking] = useState<any>(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
 
     useEffect(() => {
         const fetchBookings = async () => {
@@ -182,24 +185,44 @@ const Account = () => {
         fetchBookings();
     }, []);
 
-    // Placeholder user info
-    const userInfo = {
-        name: 'Abir',
-        phone: '+91 98765 43210',
-        memberSince: '2025',
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
     };
 
     return (
         <div className="min-h-screen bg-white px-4 py-2 pb-20">
+            {/* Hamburger Menu */}
+            <div className="relative">
+                <button 
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="absolute right-4 top-4 p-2 rounded-full hover:bg-gray-100"
+                >
+                    <Menu className="w-6 h-6 text-gray-600" />
+                </button>
+                
+                {isMenuOpen && (
+                    <div className="absolute right-4 top-14 bg-white rounded-lg shadow-lg py-2 w-48 z-50">
+                        <button
+                            onClick={handleLogout}
+                            className="w-full px-4 py-2 text-left text-red-600 hover:bg-gray-100 flex items-center gap-2"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            Logout
+                        </button>
+                    </div>
+                )}
+            </div>
+
             {/* User Info */}
             <div className="flex flex-col items-center py-8">
                 <div className="w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center mb-4">
                     <span className="text-4xl text-purple-600">👤</span>
                 </div>
-                <div className="text-2xl font-semibold text-heading-black mb-1">{userInfo.name}</div>
-                <div className="text-gray-500 mb-1 text-lg">{userInfo.phone}</div>
-                <div className="text-gray-400 text-base">Member since {userInfo.memberSince}</div>
+                <div className="text-gray-500 mb-1 text-lg">{user?.mobile_number?.slice(0, 3)} {user?.mobile_number?.slice(3, 8)} {user?.mobile_number?.slice(8)}</div>
+                <div className="text-gray-400 text-base">Member since {user?.created_at?.slice(0, 10)}</div>
             </div>
+
             {/* Bookings */}
             <h2 className="text-heading-black text-xl font-semibold mb-4">Past Bookings</h2>
             {loading ? (
